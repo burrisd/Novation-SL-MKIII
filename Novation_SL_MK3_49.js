@@ -41,7 +41,7 @@ const NUM_PIANO_KEYS = 60
  * Constants for physical controls in InControl mode.
  * The single-byte color offset uses these control values,
  * which are the same as the controls. These use NOTE ON
- * values set to channel 16.
+ * values sent to channel 16.
  */
 const ROTARY_KNOB_1             = 0x15
 const FADER_1                   = 0x29
@@ -346,11 +346,13 @@ function makeKnobStrip(knobIndex, x, y) {
      * Callback for the the display when the knob display title 
      * change. 
      */
-    knobStrip.knob.mSurfaceValue.mOnTitleChange = function (context, objectTitle, valueTitle) {
-        var msg = helper.sysex.displaySetTextOfColumn(knobIndex, SMALL_LCD_TEXT_2, valueTitle)
-        midiOutput.sendMidi(context, msg)
-        msg = helper.sysex.setNotificationText(objectTitle, valueTitle )
-        midiOutput.sendMidi(context, msg )
+    knobStrip.knob.mSurfaceValue.mOnTitleChange = function ( context, objectTitle, valueTitle) {
+        var msg = helper.sysex.displaySetTextOfColumn( knobIndex, SMALL_LCD_TEXT_2, valueTitle)
+        midiOutput.sendMidi( context, msg )
+        msg = helper.sysex.displaySetTextOfColumn( knobIndex, SMALL_LCD_TEXT_1, objectTitle )
+        midiOutput.sendMidi( context, msg )
+        msg = helper.sysex.setNotificationText( objectTitle, valueTitle )
+        midiOutput.sendMidi( context, msg )
     }
     /**
      * Callback for when button value changes.
