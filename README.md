@@ -24,4 +24,4 @@ in a timely fashion, however you should be prepared for disruptions and design c
 
 The bonus for you is that you can participate in the direction of the project. That's not to say everyone
 will get what they want. Even if you ultimately decide to do your own approach, there will be invaluable
-assistance in reviewing how this driver works with the Remore API.
+assistance in reviewing how this driver works with the Remote API.
