@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Input_TransformerPreset>
+   <list name="Version" type="list">
+      <item>
+         <string name="AppName" value="Cubase"/>
+         <int name="AppVersion" value="12"/>
+      </item>
+   </list>
+   <member name="Attributes">
+      <int name="VersionMagic" value="16384"/>
+      <member name="ExpertSetting">
+         <int name="Value" value="0"/>
+         <int name="Min" value="0"/>
+         <int name="Max" value="1"/>
+      </member>
+      <member name="Info">
+         <string name="s" value="Relative CW" wide="true"/>
+      </member>
+      <list name="Actions" type="obj">
+         <obj class="leActionTargetValue2" ID="944039024">
+            <int name="Function" value="304"/>
+            <int name="Type" value="4003"/>
+            <obj class="LeUIntValue" name="Value1" ID="944038544">
+               <int name="Min" value="0"/>
+               <int name="Max" value="127"/>
+               <int name="Value" value="64"/>
+            </obj>
+            <obj class="LeUIntValue" name="Value2" ID="944044384">
+               <int name="Min" value="0"/>
+               <int name="Max" value="127"/>
+               <int name="Value" value="0"/>
+            </obj>
+         </obj>
+      </list>
+      <list name="Filter" type="obj">
+         <obj class="leTypesTarget" ID="1864233040">
+            <int name="Digit" value="100"/>
+            <int name="Type" value="200"/>
+            <int name="DomainType" value="0"/>
+            <obj class="LeTypeValue" name="Value1" ID="1751926720">
+               <int name="Min" value="0"/>
+               <int name="Max" value="6"/>
+               <int name="Val" value="2"/>
+            </obj>
+            <obj class="LeUIntValue" name="Value2" ID="944045024">
+               <int name="Min" value="0"/>
+               <int name="Max" value="2147483647"/>
+               <int name="Value" value="0"/>
+            </obj>
+            <string name="ClassName" value="" wide="true"/>
+         </obj>
+         <obj class="leToken" ID="880002208">
+            <int name="Digit" value="103"/>
+         </obj>
+         <obj class="leValue1Target" ID="947068224">
+            <int name="Digit" value="100"/>
+            <int name="Type" value="207"/>
+            <int name="DomainType" value="0"/>
+            <obj class="PControllerValue" name="Value1" ID="944043584">
+               <int name="Value" value="21"/>
+               <int name="Min" value="0"/>
+               <int name="Max" value="127"/>
+            </obj>
+            <obj class="PControllerValue" name="Value2" ID="944044624">
+               <int name="Value" value="38"/>
+               <int name="Min" value="0"/>
+               <int name="Max" value="127"/>
+            </obj>
+         </obj>
+         <obj class="leToken" ID="880001856">
+            <int name="Digit" value="103"/>
+         </obj>
+         <obj class="leValue2Target" ID="947073152">
+            <int name="Digit" value="100"/>
+            <int name="Type" value="203"/>
+            <int name="DomainType" value="0"/>
+            <obj class="LeUIntValue" name="Value1" ID="944048064">
+               <int name="Min" value="0"/>
+               <int name="Max" value="127"/>
+               <int name="Value" value="1"/>
+            </obj>
+            <obj class="LeUIntValue" name="Value2" ID="944049824">
+               <int name="Min" value="0"/>
+               <int name="Max" value="127"/>
+               <int name="Value" value="127"/>
+            </obj>
+         </obj>
+         <obj class="leToken" ID="880003840">
+            <int name="Digit" value="103"/>
+         </obj>
+         <obj class="leValue2Target" ID="947069280">
+            <int name="Digit" value="100"/>
+            <int name="Type" value="205"/>
+            <int name="DomainType" value="0"/>
+            <obj class="LeUIntValue" name="Value1" ID="944057264">
+               <int name="Min" value="0"/>
+               <int name="Max" value="127"/>
+               <int name="Value" value="3"/>
+            </obj>
+            <obj class="LeUIntValue" name="Value2" ID="944057904">
+               <int name="Min" value="0"/>
+               <int name="Max" value="127"/>
+               <int name="Value" value="0"/>
+            </obj>
+         </obj>
+      </list>
+      <member name="PostName">
+         <string name="s" value=""/>
+      </member>
+      <member name="processType">
+         <int name="Value" value="1"/>
+         <int name="Min" value="0"/>
+         <int name="Max" value="8"/>
+      </member>
+      <member name="Context">
+         <int name="Value" value="0"/>
+         <int name="Min" value="0"/>
+         <int name="Max" value="2"/>
+      </member>
+      <int name="VersionMagic12" value="4608"/>
+   </member>
+   <bin name="Preset">
+		00400000000000000F00000052656C617469766520435700EFBBBF0A00000001
+		0001000000FEFFFFFF0D0000006C65416374696F6E42617365000000FEFFFFFF
+		09000000436D4F626A656374000000FFFFFFFF150000006C65416374696F6E54
+		617267657456616C75653200000069000000000030010000A30F0000FEFFFFFF
+		0A00000055496E7456616C7565000000FEFFFFFF070000005556616C75650000
+		00FFFFFFFF0C0000004C6555496E7456616C75650000000C000000000000007F
+		00000040000000A10000800C000000000000007F000000000000000A00000001
+		0007000000FEFFFFFF120000006C65436F6E646974696F6E5461726765740000
+		00FEFFFFFF080000006C65546F6B656E000000FFFFFFFF0E0000006C65547970
+		65735461726765740000004A00000064000000C800000000000000FFFFFFFF0C
+		0000004C655479706556616C75650000000C0000000000000006000000020000
+		00A10000800C00000000000000FFFFFF7F000000000000000001010080040000
+		0067000000FFFFFFFF0F0000006C6556616C7565315461726765740000004B00
+		000064000000CF00000000000000FFFFFFFF1100000050436F6E74726F6C6C65
+		7256616C75650000000C000000000000007F00000015000000AE0100800C0000
+		00000000007F00000026000000010100800400000067000000FFFFFFFF0F0000
+		006C6556616C7565325461726765740000003400000064000000CB0000000000
+		0000A10000800C000000000000007F00000001000000A10000800C0000000000
+		00007F0000007F000000010100800400000067000000F9010080340000006400
+		0000CD00000000000000A10000800C000000000000007F00000003000000A100
+		00800C000000000000007F000000000000000000000001000000000000000000
+		0000001100000000000000000000
+   </bin>
+</Input_TransformerPreset>
