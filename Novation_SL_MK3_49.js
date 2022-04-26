@@ -168,26 +168,33 @@ var deviceDriver = midiremote_api.makeDeviceDriver('Novation', 'SL MK3 49', 'Dav
 var midiInput = deviceDriver.mPorts.makeMidiInput()
 var midiOutput = deviceDriver.mPorts.makeMidiOutput()
 
-// define all possible namings the devices MIDI ports could have
-// NOTE: Windows and MacOS handle port naming differently
+const DEBUG_MODE    = 0
+
+if (DEBUG_MODE == 1)
+{
+deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
+    .expectInputNameEquals('To-Cubase')
+    .expectOutputNameEquals('From-Cubase')
+    .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
+
+deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
+    .expectInputNameEquals('To-Cubase')
+    .expectOutputNameEquals('From-Cubase')
+    .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
+
+}
+else
+{
 deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
     .expectInputNameEquals('MIDIIN2 (Novation SL MkIII)')
     .expectOutputNameEquals('MIDIOUT2 (Novation SL MkIII)')
     .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
 
-//deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
-//    .expectInputNameEquals('Novation SL MkIII')
-//    .expectOutputNameEquals('Novation SL MkIII')
-//    .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
-
-/* deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
-    .expectInputNameEquals('Novation SL MkIII')
-    .expectOutputNameEquals('Novation SL MkIII') */
-
-//deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
-//    .expectInputNameContains('MIDIIN2')
-//    .expectOutputNameContains('MIDIOUT2')
-//    .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
+deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
+    .expectInputNameEquals('MIDIIN2 (Novation SL MkIII)')
+    .expectOutputNameEquals('MIDIOUT2 (Novation SL MkIII)')
+    .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
+}
 
 var surface = deviceDriver.mSurface
 
