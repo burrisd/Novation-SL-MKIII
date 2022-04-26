@@ -201,8 +201,6 @@ var trackBlue = [ ]
  * Construct the Fader strip. Each fader strip includes a fader, and LED, and two buttons
  * above the fader. 
  * 
- * @author Dave Burris (04/19/2022)
- * 
  * @param faderIndex        Fader index.
  * @param x                 Horizontal location.
  * @param y                 Vertical location.
@@ -286,8 +284,6 @@ function makeFaderStrip(faderIndex, x, y) {
 
 /**
  * Construct the knob strip.
- * 
- * @author Dave Burris (04/19/2022)
  * 
  * @param knobIndex     Knob index.
  * @param x             Horizontal location.
@@ -390,8 +386,6 @@ function makeKnobStrip(knobIndex, x, y) {
 /**
  * Construct the Transport buttons.
  * 
- * @author Dave Burris (04/19/2022)
- * 
  * @param x     Horizontal location.
  * @param y     Verticle location. 
  *  
@@ -441,8 +435,6 @@ function makeTransport(x, y) {
 
 /**
  * Construct the control surface elements.
- * 
- * @author Dave Burris (04/19/2022) 
  *  
  * @return  Constructed control surface assembly. 
  */
@@ -456,13 +448,6 @@ function makeSurfaceElements() {
 
     var xKnobStrip = 6
     var yKnobStrip = 0
-
-    /**
-     * Bind controls to MIDI CC.
-     */
-    function bindMidiCC(button, chn, num) {
-        button.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(chn, num)
-    }
 
     // Create device label.
     surfaceElements.deviceLabel = surface.makeLabelField(45, 0, 7, 2)
@@ -510,12 +495,12 @@ function makeSurfaceElements() {
     surfaceElements.transport = makeTransport(41, 7)
 
     // Bind the navigation controls.
-    bindMidiCC(surfaceElements.btn_prevKnobSubPage, INCONTROLMIDICHANNEL, SCREEN_UP_BUTTON)
-    bindMidiCC(surfaceElements.btn_nextKnobSubPage, INCONTROLMIDICHANNEL, SCREEN_DOWN_BUTTON)
-    bindMidiCC(surfaceElements.btn_prevDriverPage, INCONTROLMIDICHANNEL, PADS_UP_BUTTON)
-    bindMidiCC(surfaceElements.btn_nextDriverPage, INCONTROLMIDICHANNEL, PADS_DOWN_BUTTON)
-    bindMidiCC(surfaceElements.btn_prevFaderSubPage, INCONTROLMIDICHANNEL, RIGHT_SOFTBUTTONS_UP)
-    bindMidiCC(surfaceElements.btn_nextFaderSubPage, INCONTROLMIDICHANNEL, RIGHT_SOFTBUTTONS_DOWN)
+    surfaceElements.btn_prevKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SCREEN_UP_BUTTON)
+    surfaceElements.btn_nextKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SCREEN_DOWN_BUTTON)
+    surfaceElements.btn_prevDriverPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, PADS_UP_BUTTON)
+    surfaceElements.btn_nextDriverPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, PADS_DOWN_BUTTON)
+    surfaceElements.btn_prevFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, RIGHT_SOFTBUTTONS_UP)
+    surfaceElements.btn_nextFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, RIGHT_SOFTBUTTONS_DOWN)
 
     return surfaceElements
 }
@@ -525,8 +510,6 @@ var surfaceElements = makeSurfaceElements()
 
 /**
  * Transport button value change callback.
- * 
- * @author Dave Burris (04/19/2022)
  * 
  * @param button    Button index.
  * @param ledID     LED index.
@@ -558,8 +541,6 @@ makeTransportDisplayFeedback(surfaceElements.transport.btnRecord, RECORD_BUTTON,
  * creation of all pages such that a common navigation method is 
  * maintained across all pages by using the same controls. 
  * 
- * @author Dave Burris (04/19/2022)
- * 
  * @param name Page name. 
  *  
  * @return Constructed page. 
@@ -582,11 +563,11 @@ function makePageWithDefaults(name) {
      * Bind the Host mixer track to the selection buttons.
      */
     function bindChannelBankItem(index) {
-        var channelBankItem = hostMixerBankZone.makeMixerBankChannel()
-        var selectedButtonValue = surfaceElements.knobStrips[index].button.mSurfaceValue;
+        //var channelBankItem = hostMixerBankZone.makeMixerBankChannel()
+        //var selectedButtonValue = surfaceElements.knobStrips[index].button.mSurfaceValue;
 
         // Bind the Cubase selected track with the currently selected button.
-        page.makeValueBinding(selectedButtonValue, channelBankItem.mValue.mSelected)
+        page.makeValueBinding(surfaceElements.knobStrips[index].button.mSurfaceValue, hostMixerBankZone.makeMixerBankChannel().mValue.mSelected)
     }
     for (var i = 0; i < numParts; ++i )
     {
@@ -612,8 +593,6 @@ function makePageWithDefaults(name) {
  * the control paradigm to resemble the standalone behavior of 
  * the SL controls. 
  * 
- * @author Dave Burris (04/19/2022) 
- *  
  * @return  Constructed selected track page. 
  */
 function makePageSelectedTrack() {
@@ -624,14 +603,15 @@ function makePageSelectedTrack() {
     for(var idx = 0; idx < surfaceElements.knobStrips.length; ++idx)
         page.makeValueBinding (surfaceElements.knobStrips[idx].knob.mSurfaceValue, selectedTrackChannel.mQuickControls.getByIndex(idx))
     
+    page.makeActionBinding(surfaceElements.btn_prevDriverPage.mSurfaceValue, deviceDriver.mAction.mPrevPage)
+    page.makeActionBinding(surfaceElements.btn_nextDriverPage.mSurfaceValue, deviceDriver.mAction.mNextPage)
+    
     return page
 }
 
 
 /**
  * Construct subpage within the specified subpage area.
- * 
- * @author Dave Burris (04/19/2022)
  * 
  * @param subPageArea   Area to contain subpages.
  * @param name          Subpage name. 
@@ -656,8 +636,6 @@ function makeSubPage(subPageArea, name) {
  * remove "Volume" from the knobs, since volume is already 
  * mapped to the faders. 
  * 
- * @author Dave Burris (04/19/2022) 
- *  
  * @return  Constructed mixer page. 
  */
 function makePageMixer() {
@@ -722,6 +700,8 @@ function makePageMixer() {
     // Binding for subpage navigation.
     page.makeActionBinding(surfaceElements.btn_prevKnobSubPage.mSurfaceValue, knobSubPageArea.mAction.mPrev)
     page.makeActionBinding(surfaceElements.btn_nextKnobSubPage.mSurfaceValue, knobSubPageArea.mAction.mNext)
+    page.makeActionBinding(surfaceElements.btn_prevDriverPage.mSurfaceValue, deviceDriver.mAction.mPrevPage)
+    page.makeActionBinding(surfaceElements.btn_nextDriverPage.mSurfaceValue, deviceDriver.mAction.mNextPage)
     //page.makeActionBinding(surfaceElements.btn_prevFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mPrev)
     //page.makeActionBinding(surfaceElements.btn_nextFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mNext)
 
@@ -732,8 +712,6 @@ function makePageMixer() {
  * Create a page for the settings in each SL Part. This a a new 
  * page for development of the SL navigation resembling the 
  * standalone operation while in InControl mode. 
- * 
- * @author Dave Burris (04/19/2022) 
  *  
  * @return Created page. 
  */
@@ -760,6 +738,8 @@ function makePageParts() {
     page.makeActionBinding(surfaceElements.btn_nextKnobSubPage.mSurfaceValue, knobSubPageArea.mAction.mNext)
     page.makeActionBinding(surfaceElements.btn_prevFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mPrev)
     page.makeActionBinding(surfaceElements.btn_nextFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mNext)
+    page.makeActionBinding(surfaceElements.btn_prevDriverPage.mSurfaceValue, deviceDriver.mAction.mPrevPage)
+    page.makeActionBinding(surfaceElements.btn_nextDriverPage.mSurfaceValue, deviceDriver.mAction.mNextPage)
 
     return page
 }
@@ -776,6 +756,7 @@ pageMixer.mOnActivate = function (context) {
     var fromPage = context.getState( 'Current Page' )
     var newPage = 'Mixer'
     context.setState( 'Current Page', newPage )
+    console.log( 'Page ' + newPage )
 	helper.display.reset(context, midiOutput)
 }
 
@@ -786,6 +767,7 @@ pageSelectedTrack.mOnActivate = function (context) {
     var fromPage = context.getState( 'Current Page' )
     var newPage = 'Selected Track'
     context.setState( 'Current Page ', newPage )
+    console.log( 'Page ' + newPage )
 	helper.display.reset(context, midiOutput)
 }
 
@@ -796,5 +778,6 @@ pageParts.mOnActivate = function( context ) {
     var fromPage = context.getState( 'Current Page' )
     var newPage = 'Parts'
     context.setState( 'Current Page', newPage )
+    console.log( 'Page ' + newPage )
     helper.display.reset(context, midiOutput)
 }
