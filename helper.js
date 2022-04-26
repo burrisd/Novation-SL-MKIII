@@ -2,8 +2,6 @@
  * Configure the layout selection of the small displays 
  * below the rotary controls. 
  * 
- * @author Dave Burris (04/19/2022)
- * 
  * @param layoutIndex   Layout type index. 
  *  
  * @return  Array of bytes for layout command. 
@@ -16,8 +14,6 @@ function make_Sysex_displayActivateLayoutByIndex(layoutIndex) {
 /**
  * Configure the small screen layout for knob layout.
  * 
- * @author Dave Burris (04/19/2022) 
- *  
  * @return  Array of bytes for layout command. 
  */
 function make_Sysex_displayActivateLayoutKnob() {
@@ -26,8 +22,6 @@ function make_Sysex_displayActivateLayoutKnob() {
 
 /**
  * Display a text field in a display window.
- * 
- * @author Dave Burris (04/19/2022)
  * 
  * @param columnIndex       Index of display.
  * @param textFieldIndex    Index of text field.
@@ -51,8 +45,6 @@ function make_Sysex_displaySetTextOfColumn(columnIndex, textFieldIndex, textStri
 /**
  * Display a knob value.
  * 
- * @author Dave Burris (04/19/2022)
- * 
  * @param   columnIndex Index of display.
  * @param   objectIndex Knob object index.
  * @param   value Value to display.
@@ -66,8 +58,6 @@ function make_Sysex_setDisplayValueOfColumn(columnIndex, objectIndex, value) {
 
 /**
  * Change display object color.
- * 
- * @author Dave Burris (04/19/2022)
  * 
  * @param columnIndex   Index of display.
  * @param objectIndex   Index of the object to change color.
@@ -85,8 +75,6 @@ function make_Sysex_setDisplayColorOfColumn(columnIndex, objectIndex, r, g, b) {
 /**
  * Change the color of an LED (RGB).
  * 
- * @author Dave Burris (04/19/2022)
- * 
  * @param ledIndex  LED Index.
  * @param r         RGB red value.
  * @param g         RGB green value.
@@ -103,8 +91,6 @@ function make_Sysex_setLEDColorRGB(ledIndex, r, g, b) {
 /**
  * Change the color of an LED (Color index).
  * 
- * @author Dave Burris (04/19/2022)
- * 
  * @param ledIndex  LED Index.
  * @param r         RGB red value.
  * @param g         RGB green value.
@@ -118,8 +104,6 @@ function make_Sysex_setLEDColor(ledIndex, colorId) {
 
 /**
  * Display text in the center screen notification area.
- * 
- * @author Dave Burris (04/19/2022)
  * 
  * @param line1     Text of line 1.
  * @param line2     Text of line 2.
@@ -143,8 +127,6 @@ function make_Sysex_setNotificationText( line1, line2 ) {
 
 /**
  * Reset the displays to their initial state.
- * 
- * @author Dave Burris (04/19/2022)
  * 
  * @param activeDevice      Device ID. 
  * @param outPort           MIDI output port.
