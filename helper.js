@@ -133,9 +133,9 @@ function make_Sysex_setNotificationText( line1, line2 ) {
  */
 function resetDisplay(activeDevice, outPort) {
     outPort.sendMidi(activeDevice, make_Sysex_displayActivateLayoutKnob())
-    for(var i = 0; i < 8; ++i) {
-        for(var k = 0; k < 3; ++k) {
-            outPort.sendMidi(activeDevice, make_Sysex_displaySetTextOfColumn(i, k, ""))
+    for(var i = 0; i <= 8; ++i) {
+        for(var k = 0; k <= 3; ++k) {
+            outPort.sendMidi(activeDevice, make_Sysex_displaySetTextOfColumn(i, k, ''))
             outPort.sendMidi(activeDevice, make_Sysex_setDisplayColorOfColumn(i, k, 127, 127, 127))
         }
     }

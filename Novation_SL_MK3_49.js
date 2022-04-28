@@ -203,6 +203,45 @@ var trackRed = [ ]
 var trackGreen = [ ]
 var trackBlue = [ ]
 
+function lcdActions( ) {
+    var msg
+
+    this.resetDisplays = function( context, midi ) {
+        helper.display.reset( context,  midi )
+    }
+    this.notification = function( context, line1, line2 ) {
+        msg = helper.sysex.setNotificationText( line1, line2 )
+        midiOutput.sendMidi( context, msg )
+    }
+    this.displayText = function( context, displayCol, displayRow, text ) {
+        msg = helper.sysex.displaySetTextOfColumn( displayCol, displayRow, text )
+        midiOutput.sendMidi( context, msg )
+    }
+    this.displayColorRGB = function( context, displayCol, displayRow, red, green, blue ) {
+        msg = helper.sysex.setDisplayColorOfColumn( displayCol, displayRow, red, green, blue )
+        midiOutput.sendMidi( context, msg )
+    }
+    this.displayValue = function( context, displayCol, displayRow, value ) {
+        msg = helper.sysex.setDisplayValueOfColumn(displayCol, displayRow, value )
+        midiOutput.sendMidi( context, msg )
+    }
+}
+
+function ledActions( ) {
+    var msg
+    this.color = function( context, ledId, colorId ) {
+        msg = helper.note.setLEDColor( ledId, colorId )
+        midiOutput.sendMidi( context, msg )
+    }
+    this.colorRGB = function( context, ledId, red, green, blue ) {
+        msg = helper.sysex.setLEDColorRGB( ledId, red, green, blue )
+        midiOutput.sendMidi( context, msg )
+    }
+}
+
+var lcd = new lcdActions
+var led = new ledActions
+
 
 /**
  * Construct the Fader strip. Each fader strip includes a fader, and LED, and two buttons
@@ -221,17 +260,12 @@ function makeFaderStrip(faderIndex, x, y) {
      * buttons to browse pages. This is similar to what is already partly implemented for the
      * knobs.
      */
-    faderStrip.btnMute = surface.makeButton(x + 2 * faderIndex, y, 2, 1)
-    faderStrip.btnSolo = surface.makeButton(x + 2 * faderIndex, y + 1, 2, 1)
+    faderStrip.btnTop = surface.makeButton(x + 2 * faderIndex, y, 2, 1)
+    faderStrip.btnBottom = surface.makeButton(x + 2 * faderIndex, y + 1, 2, 1)
 
     // Create faders and set to vertical. (Default). If you wanted horizontal, do that here.
     faderStrip.fader = surface.makeFader(x + 2 * faderIndex, y + 3, 2, 6 )
-    faderStrip.fader.setTypeVertical()
-
-    // Bind the fader buttons and faders.
-    faderStrip.btnMute.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_9 + faderIndex )
-    faderStrip.btnSolo.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_17 + faderIndex )
-    faderStrip.fader.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, FADER_1 + faderIndex)
+    faderStrip.fader.setTypeVertical( )
 
     // Fader callback functions.
 
@@ -239,8 +273,7 @@ function makeFaderStrip(faderIndex, x, y) {
      * Callback when a fader title changes.
      */
     faderStrip.fader.mSurfaceValue.mOnTitleChange = function (context, objectTitle, valueTitle) {
-        var msg = helper.sysex.displaySetTextOfColumn(faderIndex, SMALL_LCD_TEXT_4, objectTitle)
-        midiOutput.sendMidi(context, msg)
+        lcd.displayText(context, SMALL_LCD_OFFSET + faderIndex, SMALL_LCD_TEXT_4, objectTitle )
     }
 
     /**
@@ -249,7 +282,7 @@ function makeFaderStrip(faderIndex, x, y) {
      * Note that the color values received from Cubase here are 
      * fractional values each color and the overall amplitude. 
      */
-    faderStrip.fader.mSurfaceValue.mOnColorChange = function (context, r, g, b, a, isActive) {
+    faderStrip.fader.mSurfaceValue.mOnColorChange = function (context, r, g, b, a, IsActive ) {
         trackRed[ faderIndex ] = r * 127 * a
         trackGreen[ faderIndex ] = g * 127 * a
         trackBlue[ faderIndex ] = b * 127 * a
@@ -258,15 +291,13 @@ function makeFaderStrip(faderIndex, x, y) {
          * Update display row color.
          */
         function updateRow(rowIdx, red, green, blue ) {
-            var msg = helper.sysex.setDisplayColorOfColumn(faderIndex, rowIdx, red, 
+            lcd.displayColorRGB( context, SMALL_LCD_OFFSET + faderIndex, rowIdx, red, 
                                                            green, blue)
-            midiOutput.sendMidi(context, msg )
         }
-        var msg = helper.sysex.setLEDColorRGB( FADER_1_LED + faderIndex, 
+        led.colorRGB(context, FADER_1_LED + faderIndex, 
                                                trackRed[faderIndex] * .8, 
                                                trackGreen[ faderIndex ] * .8, 
                                                trackBlue[ faderIndex ] * .8 )
-        midiOutput.sendMidi(context, msg)
 
         /**
          * Update color of the top and bottom bars.
@@ -276,6 +307,48 @@ function makeFaderStrip(faderIndex, x, y) {
         updateRow(SMALL_LCD_BOTTOM_BAR, trackRed[ faderIndex ], trackGreen[ faderIndex ], 
                   trackBlue[ faderIndex ])
     }
+
+
+/**
+     * Callback for mute button.
+     * 
+     * @param context   Device driver context.
+     * @param value     New button value.
+     */
+    faderStrip.btnTop.mSurfaceValue.mOnProcessValueChange = function( context, value ) {
+        if (value)
+        {
+            led.colorRGB(context, SOFTBUTTON_9_LED + faderIndex, trackRed[faderIndex],
+                                                   trackGreen[faderIndex], trackBlue[faderIndex] )
+        }
+        else
+        {
+            led.colorRGB( context, SOFTBUTTON_9_LED + faderIndex, 0, 0, 0 )
+        }
+    }
+
+    /**
+     * Callback for solo button.
+     * 
+     * @param context   Device driver context.
+     * @param value     New button value.
+     */
+    faderStrip.btnBottom.mSurfaceValue.mOnProcessValueChange = function( context, value ) {
+        if (value)
+        {
+            led.colorRGB(context, SOFTBUTTON_17_LED + faderIndex, trackRed[ faderIndex ], trackGreen[ faderIndex ], 
+                  trackBlue[ faderIndex ])
+    }
+        else
+        {
+            led.colorRGB(context, SOFTBUTTON_17_LED + faderIndex, 20, 20, 20 )
+        }
+    }
+
+    // Bind the fader buttons and faders.
+    faderStrip.btnTop.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_9 + faderIndex )
+    faderStrip.btnBottom.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_17 + faderIndex )
+    faderStrip.fader.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, FADER_1 + faderIndex )
 
     return faderStrip
 }
@@ -313,48 +386,38 @@ function makeKnobStrip(knobIndex, x, y) {
      * value. 
      */
     knobStrip.knob.mSurfaceValue.mOnProcessValueChange = function (context, newValue ) {
-        var msg = helper.sysex.setDisplayValueOfColumn(knobIndex, SMALL_LCD_KNOB_VALUE, newValue * (127))
-        midiOutput.sendMidi(context, msg)
+        lcd.displayValue( context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_KNOB_VALUE, newValue * 127 )
     }
     /**
      * Callback for the display when the knob display value changes.
      */
     knobStrip.knob.mSurfaceValue.mOnDisplayValueChange = function (context, value, units) {
-        var msg = helper.sysex.displaySetTextOfColumn(knobIndex, SMALL_LCD_TEXT_3, value)
-        midiOutput.sendMidi(context, msg )
+        lcd.displayText(context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_TEXT_3, value )
     }
     /**
      * Callback for the the display when the knob display title 
      * change. 
      */
     knobStrip.knob.mSurfaceValue.mOnTitleChange = function ( context, objectTitle, valueTitle) {
-        var msg = helper.sysex.displaySetTextOfColumn( knobIndex, SMALL_LCD_TEXT_2, valueTitle)
-        midiOutput.sendMidi( context, msg )
-        msg = helper.sysex.displaySetTextOfColumn( knobIndex, SMALL_LCD_TEXT_1, objectTitle )
-        midiOutput.sendMidi( context, msg )
-        //msg = helper.sysex.setNotificationText( objectTitle, valueTitle )
-        //midiOutput.sendMidi( context, msg )
-        var msg = helper.sysex.setNotificationText( 'Version', '0.0.2' )
-        midiOutput.sendMidi( context, msg )
+        lcd.displayText(context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_TEXT_2, valueTitle)
+        lcd.displayText( context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_TEXT_1, objectTitle )
+        var msg = lcd.notification( context, 'Version', 'v0.0.3' )
     }
     /**
      * Callback for when button value changes.
      */
     knobStrip.button.mSurfaceValue.mOnProcessValueChange = function (context, newValue) {
+        var msg
         if (newValue)
         {
-            var msg = helper.sysex.setLEDColorRGB( SOFTBUTTON_1_LED + knobIndex, trackRed[knobIndex],
+            led.colorRGB(context, SOFTBUTTON_1_LED + knobIndex, trackRed[knobIndex],
                                                    trackGreen[knobIndex], trackBlue[knobIndex] )
-            midiOutput.sendMidi( context, msg )
-            msg = helper.sysex.setDisplayValueOfColumn( knobIndex, SMALL_LCD_SELECTED, 1 )
-            midiOutput.sendMidi( context, msg )
+            lcd.displayValue( context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_SELECTED, 1 )
         }
         else
         {
-            var msg = helper.sysex.setLEDColorRGB( SOFTBUTTON_1_LED + knobIndex, 20, 20, 20 )
-            midiOutput.sendMidi( context, msg )
-            msg = helper.sysex.setDisplayValueOfColumn( knobIndex, SMALL_LCD_SELECTED, 0 )
-            midiOutput.sendMidi( context, msg )
+            led.colorRGB(context, SOFTBUTTON_1_LED + knobIndex, 20, 20, 20 )
+            lcd.displayValue( context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_SELECTED, 0 )
         }
     }
 
@@ -501,8 +564,7 @@ function makeTransportDisplayFeedback(button, ledID, colorID) {
      * and controlling the colors of the buttons. 
      */
 	button.mSurfaceValue.mOnProcessValueChange = function (context, newValue) {
-        var msg = helper.note.setLEDColor( ledID, colorID * newValue )
-		midiOutput.sendMidi(context, msg )
+        led.color(context, ledID, colorID * newValue )
 	}
 }
 
@@ -651,8 +713,8 @@ function makePageMixer() {
 
         // Variables for the simplifcation of the binding code.
         var knobValue = surfaceElements.knobStrips[index].knob.mSurfaceValue
-        var muteValue = surfaceElements.faderStrips[index].btnMute.mSurfaceValue
-        var soloValue = surfaceElements.faderStrips[index].btnSolo.mSurfaceValue
+        var muteValue = surfaceElements.faderStrips[index].btnTop.mSurfaceValue
+        var soloValue = surfaceElements.faderStrips[index].btnBottom.mSurfaceValue
         var faderValue = surfaceElements.faderStrips[index].fader.mSurfaceValue
 
         // Bind the pan knob on the pan subpage.
@@ -737,7 +799,16 @@ pageMixer.mOnActivate = function (context) {
     var newPage = 'Mixer'
     context.setState( 'Current Page', newPage )
     console.log( 'Page ' + newPage )
-	helper.display.reset(context, midiOutput)
+    lcd.resetDisplays(context, midiOutput)
+
+    /* Currently there is no subpage for the fader
+     * assembly on the Mixer page, so the center screen
+     * labels for the fader buttons will be configured
+     * here. They should be moved to a subpage and
+     * handled in the subpage OnActive( ) callback.
+     */
+    lcd.displayText(context, CENTER_LCD_OFFSET, SMALL_LCD_CENTER_BOX_TEXT_1, 'Mute' )
+    lcd.displayText(context, CENTER_LCD_OFFSET, SMALL_LCD_CENTER_BOX_TEXT_2, 'Solo' )
 }
 
 /**
@@ -748,7 +819,7 @@ pageSelectedTrack.mOnActivate = function (context) {
     var newPage = 'Selected Track'
     context.setState( 'Current Page ', newPage )
     console.log( 'Page ' + newPage )
-	helper.display.reset(context, midiOutput)
+    lcd.resetDisplays(context, midiOutput)
 }
 
 /**
@@ -759,7 +830,7 @@ pageParts.mOnActivate = function( context ) {
     var newPage = 'Parts'
     context.setState( 'Current Page', newPage )
     console.log( 'Page ' + newPage )
-    helper.display.reset(context, midiOutput)
+    lcd.resetDisplays(context, midiOutput)
 }
 
 
