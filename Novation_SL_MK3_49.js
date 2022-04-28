@@ -203,36 +203,66 @@ var trackRed = [ ]
 var trackGreen = [ ]
 var trackBlue = [ ]
 
+/**
+ * LCD accessor functions to simplify use of the helper 
+ * functions. 
+ */
 function lcdActions( ) {
     var msg
 
+    /**
+     * Set displays to a default condition.
+     */
     this.resetDisplays = function( context, midi ) {
         helper.display.reset( context,  midi )
     }
+    /**
+     * Post a notification for the center LCD.
+     */
     this.notification = function( context, line1, line2 ) {
         msg = helper.sysex.setNotificationText( line1, line2 )
         midiOutput.sendMidi( context, msg )
     }
+    /**
+     * Update an LCD text item.
+     */
     this.displayText = function( context, displayCol, displayRow, text ) {
         msg = helper.sysex.displaySetTextOfColumn( displayCol, displayRow, text )
         midiOutput.sendMidi( context, msg )
     }
+    /**
+     * Update display item color using RGB.
+     */
     this.displayColorRGB = function( context, displayCol, displayRow, red, green, blue ) {
         msg = helper.sysex.setDisplayColorOfColumn( displayCol, displayRow, red, green, blue )
         midiOutput.sendMidi( context, msg )
     }
+    /**
+     * Update display item value text.
+     */
     this.displayValue = function( context, displayCol, displayRow, value ) {
         msg = helper.sysex.setDisplayValueOfColumn(displayCol, displayRow, value )
         midiOutput.sendMidi( context, msg )
     }
 }
 
+/**
+ * LED accessor functions to simplify calling of helper 
+ * functions. 
+ */
 function ledActions( ) {
     var msg
+
+    /**
+     * Set LED color by color index.
+     */
     this.color = function( context, ledId, colorId ) {
         msg = helper.note.setLEDColor( ledId, colorId )
         midiOutput.sendMidi( context, msg )
     }
+    /**
+     * Set LED color by RGB.
+     */
     this.colorRGB = function( context, ledId, red, green, blue ) {
         msg = helper.sysex.setLEDColorRGB( ledId, red, green, blue )
         midiOutput.sendMidi( context, msg )
