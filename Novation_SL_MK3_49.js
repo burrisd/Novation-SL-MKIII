@@ -267,6 +267,22 @@ function ledActions( ) {
         msg = helper.sysex.setLEDColorRGB( ledId, red, green, blue )
         midiOutput.sendMidi( context, msg )
     }
+    /**
+     * Flash LED between this and previous color Ids.
+     */
+    this.flashRGB = function( context, ledId, red, green, blue )
+    {
+        msg = helper.sysex.setLEDFlashRGB( ledId, red, green, blue )
+        midiOutput.sendMidi( context, msg )
+    }
+    /**
+     * Flash LED between two color Ids.
+     */
+    this.pulseRGB = function( context, ledId, red, green, blue )
+    {
+        msg = helper.sysex.setLEDPulseRGB( ledId, red, green, blue )
+        midiOutput.sendMidi( context, msg )
+    }
 }
 
 var lcd = new lcdActions
@@ -353,7 +369,7 @@ function makeFaderStrip(faderIndex, x, y) {
         }
         else
         {
-            led.colorRGB( context, SOFTBUTTON_9_LED + faderIndex, 0, 0, 0 )
+            led.colorRGB( context, SOFTBUTTON_9_LED + faderIndex, 20, 20, 20 )
         }
     }
 
@@ -588,22 +604,22 @@ var surfaceElements = makeSurfaceElements()
  * @param ledID     LED index.
  * @param colorID   Color index.
  */
-function makeTransportDisplayFeedback(button, ledID, colorID) {
+function makeTransportDisplayFeedback(button, ledID, colorId ) {
     /**
      * Callback for value changes to the transport buttons 
      * and controlling the colors of the buttons. 
      */
 	button.mSurfaceValue.mOnProcessValueChange = function (context, newValue) {
-        led.color(context, ledID, colorID * newValue )
+        led.color(context, ledID, colorId * newValue )
 	}
 }
 
 // Bind the buttons values to control transport.
-makeTransportDisplayFeedback(surfaceElements.transport.btnRewind, REWIND, 3)
-makeTransportDisplayFeedback(surfaceElements.transport.btnForward, FAST_FORWARD, 3)
-makeTransportDisplayFeedback(surfaceElements.transport.btnStop, STOP_BUTTON, 3)
-makeTransportDisplayFeedback(surfaceElements.transport.btnStart, PLAY_BUTTON, 21)
-makeTransportDisplayFeedback(surfaceElements.transport.btnCycle, LOOP_BUTTON, 49)
+makeTransportDisplayFeedback(surfaceElements.transport.btnRewind, REWIND, 9 )
+makeTransportDisplayFeedback(surfaceElements.transport.btnForward, FAST_FORWARD, 9 )
+makeTransportDisplayFeedback(surfaceElements.transport.btnStop, STOP_BUTTON, 119 )
+makeTransportDisplayFeedback(surfaceElements.transport.btnStart, PLAY_BUTTON, 22 )
+makeTransportDisplayFeedback(surfaceElements.transport.btnCycle, LOOP_BUTTON, 54 )
 makeTransportDisplayFeedback(surfaceElements.transport.btnRecord, RECORD_BUTTON, 5)
 
 

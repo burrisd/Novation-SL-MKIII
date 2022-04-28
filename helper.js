@@ -89,7 +89,7 @@ function make_Sysex_setLEDColorRGB(ledIndex, r, g, b) {
 }
 
 /**
- * Change the color of an LED (Color index).
+ * Pulse the LED this color (RGB) between bright and dim.
  * 
  * @param ledIndex  LED Index.
  * @param r         RGB red value.
@@ -98,8 +98,50 @@ function make_Sysex_setLEDColorRGB(ledIndex, r, g, b) {
  *  
  * @return  Array of bytes for layout command. 
  */
+function make_Sysex_setLEDPulseRGB(ledIndex, r, g, b) {
+    return [ 0xf0, 0x00, 0x20, 0x29, 0x02, 0x0a, 0x01,
+            0x03, ledIndex, 0x03, r, g, b, 0xf7 ]
+}
+
+/**
+ * Flash the LED between this color and previous one (RGB).
+ * 
+ * @param ledIndex  LED Index.
+ * @param r         RGB red value.
+ * @param g         RGB green value.
+ * @param b         RGB blue value. 
+ *  
+ * @return  Array of bytes for layout command. 
+ */
+function make_Sysex_setLEDFlashRGB(ledIndex, r, g, b) {
+    return [ 0xf0, 0x00, 0x20, 0x29, 0x02, 0x0a, 0x01,
+            0x03, ledIndex, 0x02, r, g, b, 0xf7 ]
+}
+
+/**
+ * Change the color of an LED (Color index).
+ * 
+ * @param ledIndex  LED Index.
+ * @param colorId   Color index from the color table.
+ *  
+ * @return  Array of bytes for layout command. 
+ */
 function make_Sysex_setLEDColor(ledIndex, colorId) {
     return [ 0xbf, ledIndex, colorId ]
+}
+
+/**
+ * Flash LED between two colors.
+ * index). 
+ * 
+ * @param ledIndex  LED Index.
+ * @param colorId1  Color index from the color table.
+ * @param colorId2  Color index from the color table.
+ *  
+ * @return  Array of bytes for layout command. 
+ */
+function make_Sysex_setLEDFlash( ledIndex, colorId1, colorId2  ) {
+    return [ 0xbf, ledIndex, colorId1, 0xb1, ledIndex, colorId2 ]
 }
 
 /**
@@ -149,10 +191,12 @@ module.exports = {
         setDisplayValueOfColumn: make_Sysex_setDisplayValueOfColumn,
         setDisplayColorOfColumn: make_Sysex_setDisplayColorOfColumn,
         setLEDColorRGB: make_Sysex_setLEDColorRGB,
+        setLEDFlashRGB: make_Sysex_setLEDFlashRGB,
+        setLEDPulseRGB: make_Sysex_setLEDPulseRGB,
         setNotificationText: make_Sysex_setNotificationText
     },
     note: {
-        setLEDColor: make_Sysex_setLEDColor,
+        setLEDColor: make_Sysex_setLEDColor
     },
     display: {
         reset: resetDisplay
