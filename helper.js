@@ -149,8 +149,10 @@ module.exports = {
         setDisplayValueOfColumn: make_Sysex_setDisplayValueOfColumn,
         setDisplayColorOfColumn: make_Sysex_setDisplayColorOfColumn,
         setLEDColorRGB: make_Sysex_setLEDColorRGB,
-        setLEDColor: make_Sysex_setLEDColor,
         setNotificationText: make_Sysex_setNotificationText
+    },
+    note: {
+        setLEDColor: make_Sysex_setLEDColor,
     },
     display: {
         reset: resetDisplay
