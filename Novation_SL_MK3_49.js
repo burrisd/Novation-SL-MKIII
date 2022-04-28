@@ -217,20 +217,6 @@ var trackBlue = [ ]
 function makeFaderStrip(faderIndex, x, y) {
     var faderStrip = {}
 
-    /**
-     * Bind a button to a MIDI CC message.
-     */
-    function bindButtonCC( button, chn, cc ) {
-        button.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange( chn, cc )
-    }
-
-    /**
-     * Bind a fader to a MIDI CC message.
-     */
-    function bindFaderCC( fader, chn, cc ) {
-        fader.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange( chn, cc )
-    }
-
     /* The buttons may be expanded by moving to subPages and using the fader navigation
      * buttons to browse pages. This is similar to what is already partly implemented for the
      * knobs.
@@ -239,24 +225,30 @@ function makeFaderStrip(faderIndex, x, y) {
     faderStrip.btnSolo = surface.makeButton(x + 2 * faderIndex, y + 1, 2, 1)
 
     // Create faders and set to vertical. (Default). If you wanted horizontal, do that here.
-    faderStrip.fader = surface.makeFader(x + 2 * faderIndex, y + 3, 2, 6).setTypeVertical()
+    faderStrip.fader = surface.makeFader(x + 2 * faderIndex, y + 3, 2, 6 )
+    faderStrip.fader.setTypeVertical()
 
     // Bind the fader buttons and faders.
-    bindButtonCC(faderStrip.btnMute, INCONTROLMIDICHANNEL, SOFTBUTTON_9 + faderIndex )
-    bindButtonCC(faderStrip.btnSolo, INCONTROLMIDICHANNEL, SOFTBUTTON_17 + faderIndex )
-    bindFaderCC(faderStrip.fader, INCONTROLMIDICHANNEL, FADER_1 + faderIndex)
+    faderStrip.btnMute.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_9 + faderIndex )
+    faderStrip.btnSolo.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_17 + faderIndex )
+    faderStrip.fader.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, FADER_1 + faderIndex)
 
     // Fader callback functions.
 
     /**
-     * Bind the Cubase track titles to the labels for the displays.
+     * Callback when a fader title changes.
      */
     faderStrip.fader.mSurfaceValue.mOnTitleChange = function (context, objectTitle, valueTitle) {
         var msg = helper.sysex.displaySetTextOfColumn(faderIndex, SMALL_LCD_TEXT_4, objectTitle)
         midiOutput.sendMidi(context, msg)
     }
 
-    // Bind Cubase track colors to the remote faders and the controller LEDs and displays.
+    /**
+     * Callback when a fader color changes. 
+     *  
+     * Note that the color values received from Cubase here are 
+     * fractional values each color and the overall amplitude. 
+     */
     faderStrip.fader.mSurfaceValue.mOnColorChange = function (context, r, g, b, a, isActive) {
         trackRed[ faderIndex ] = r * 127 * a
         trackGreen[ faderIndex ] = g * 127 * a
@@ -290,7 +282,14 @@ function makeFaderStrip(faderIndex, x, y) {
 
 
 /**
- * Construct the knob strip.
+ * Construct the knob subpages. Each knob subpage on the 
+ * physical controller consists of controls and displays in a 
+ * vertical column under the knob. 
+ *  
+ * @todo It seems likely that the pads should be grouped 
+ *       differently than currently. Likely they should have
+ *       their own subpages. They are currently constructed but
+ *       not bound to functions.
  * 
  * @param knobIndex     Knob index.
  * @param x             Horizontal location.
@@ -302,27 +301,6 @@ function makeKnobStrip(knobIndex, x, y) {
     var knobStrip = {}
     
     // Define some local helper functions to make the code more readable.
-
-    /**
-     * Bind knob control change to MIDI CC.
-     */
-    function bindknobMidiCC(knob, chn, num) {
-        knob.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(chn, num).setTypeRelativeTwosComplement()
-    }
-
-    /**
-     * Bind button control change to MIDI CC.
-     */
-    function bindbuttonMidiCC(button, chn, num) {
-        button.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(chn, num)
-    }
-
-    /**
-     * Bind pad to MIDI note value.
-     */
-    function bindpadMidiNote( pad, chn, num ) {
-        pad.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToNote(chn, num)
-    }
 
     // Create the controls for each "knob strip".
     knobStrip.knob = surface.makeKnob(x + 2 * knobIndex, y, 2, 2)
@@ -354,7 +332,9 @@ function makeKnobStrip(knobIndex, x, y) {
         midiOutput.sendMidi( context, msg )
         msg = helper.sysex.displaySetTextOfColumn( knobIndex, SMALL_LCD_TEXT_1, objectTitle )
         midiOutput.sendMidi( context, msg )
-        msg = helper.sysex.setNotificationText( objectTitle, valueTitle )
+        //msg = helper.sysex.setNotificationText( objectTitle, valueTitle )
+        //midiOutput.sendMidi( context, msg )
+        var msg = helper.sysex.setNotificationText( 'Version', '0.0.2' )
         midiOutput.sendMidi( context, msg )
     }
     /**
@@ -381,10 +361,10 @@ function makeKnobStrip(knobIndex, x, y) {
     /* Control bindings to knob assembly knobs, buttons, and pads to MIDI CC messages.
      * The pads should probably be isolated into their own subpage but they're here for now.
      */
-    bindknobMidiCC(knobStrip.knob, INCONTROLMIDICHANNEL, ROTARY_KNOB_1 + knobIndex)
-    bindbuttonMidiCC(knobStrip.button, INCONTROLMIDICHANNEL, SOFTBUTTON_1 + knobIndex)
-    bindpadMidiNote(knobStrip.pad1, INCONTROLMIDICHANNEL, PAD_1 + knobIndex)
-    bindpadMidiNote(knobStrip.pad2, INCONTROLMIDICHANNEL, PAD_9 + knobIndex)
+    knobStrip.knob.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, ROTARY_KNOB_1 + knobIndex).setTypeRelativeTwosComplement()
+    knobStrip.button.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SOFTBUTTON_1 + knobIndex)
+    knobStrip.pad1.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToNote(INCONTROLMIDICHANNEL, PAD_1 + knobIndex)
+    knobStrip.pad2.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToNote(INCONTROLMIDICHANNEL, PAD_9 + knobIndex)
 
     return knobStrip
 }
@@ -406,13 +386,6 @@ function makeTransport(x, y) {
 
     var currX = x
 
-    /**
-     * Bind button to MIDI CC.
-     */
-    function bindMidiCC(button, chn, num) {
-        button.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(chn, num)
-    }
-    
     // Create the buttons.
 
     transport.btnRewind = surface.makeButton(currX, y, w, h)
@@ -429,12 +402,12 @@ function makeTransport(x, y) {
     currX += w
 
     // Bind MIDI CC to the physical buttons.
-    bindMidiCC(transport.btnRewind, INCONTROLMIDICHANNEL, REWIND)
-    bindMidiCC(transport.btnForward, INCONTROLMIDICHANNEL, FAST_FORWARD)
-    bindMidiCC(transport.btnStop, INCONTROLMIDICHANNEL, STOP_BUTTON)
-    bindMidiCC(transport.btnStart, INCONTROLMIDICHANNEL, PLAY_BUTTON)
-    bindMidiCC(transport.btnCycle, INCONTROLMIDICHANNEL, LOOP_BUTTON)
-    bindMidiCC(transport.btnRecord, INCONTROLMIDICHANNEL, RECORD_BUTTON)
+    transport.btnRewind.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, REWIND)
+    transport.btnForward.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, FAST_FORWARD)
+    transport.btnStop.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, STOP_BUTTON)
+    transport.btnStart.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, PLAY_BUTTON)
+    transport.btnCycle.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, LOOP_BUTTON)
+    transport.btnRecord.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, RECORD_BUTTON)
 
     return transport
 }
@@ -528,7 +501,7 @@ function makeTransportDisplayFeedback(button, ledID, colorID) {
      * and controlling the colors of the buttons. 
      */
 	button.mSurfaceValue.mOnProcessValueChange = function (context, newValue) {
-        var msg = helper.sysex.setLEDColor( ledID, colorID * newValue )
+        var msg = helper.note.setLEDColor( ledID, colorID * newValue )
 		midiOutput.sendMidi(context, msg )
 	}
 }
@@ -570,11 +543,11 @@ function makePageWithDefaults(name) {
      * Bind the Host mixer track to the selection buttons.
      */
     function bindChannelBankItem(index) {
-        //var channelBankItem = hostMixerBankZone.makeMixerBankChannel()
-        //var selectedButtonValue = surfaceElements.knobStrips[index].button.mSurfaceValue;
+        var channelBankItem = hostMixerBankZone.makeMixerBankChannel()
+        var selectedButtonValue = surfaceElements.knobStrips[index].button.mSurfaceValue;
 
         // Bind the Cubase selected track with the currently selected button.
-        page.makeValueBinding(surfaceElements.knobStrips[index].button.mSurfaceValue, hostMixerBankZone.makeMixerBankChannel().mValue.mSelected)
+        page.makeValueBinding(selectedButtonValue, channelBankItem.mValue.mSelected)
     }
     for (var i = 0; i < numParts; ++i )
     {
@@ -788,3 +761,5 @@ pageParts.mOnActivate = function( context ) {
     console.log( 'Page ' + newPage )
     helper.display.reset(context, midiOutput)
 }
+
+
