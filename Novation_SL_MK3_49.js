@@ -1,18 +1,18 @@
 /**
- * @file    Novation_SL_49.js 
- *  
- * MIDI remote script for the Novation SL 49/61 MKIII keyboard 
- * controller in Cubase 12 MIDI Remote. 
- *  
- * Initial project was a port from the Steinberg example MIDI 
- * Remote script (RealWorldDevice.js). It is currently a work in 
- * progress. It will be refactored to more closely resemble the 
- * behavior of the SL MKIII operating standalone with controls 
+ * @file    Novation_SL_49.js
+ *
+ * MIDI remote script for the Novation SL 49/61 MKIII keyboard
+ * controller in Cubase 12 MIDI Remote.
+ *
+ * Initial project was a port from the Steinberg example MIDI
+ * Remote script (RealWorldDevice.js). It is currently a work in
+ * progress. It will be refactored to more closely resemble the
+ * behavior of the SL MKIII operating standalone with controls
  * configured by Novation Components. The original port was done
- * by Benjamin Bajic - April, 2022. 
+ * by Benjamin Bajic - April, 2022.
  */
 
-/* 
+/*
     ##########################################################################
     ############### MIDI Remote Script for Novation SL MK3 49 ################
     ##### Development by Benjamin Bajic - https://bajic.biz - April,2022 #####
@@ -34,7 +34,7 @@ const NUM_PIANO_KEYS = 60
  *          which of the value below to use. For single-byte color
  *          index, use the InControl CC values in the first section.
  *          To set color using RGB values, a SYSEX message is required
- *          and the ID from the SYSEX group must be used.      
+ *          and the ID from the SYSEX group must be used.
  */
 
 /*
@@ -45,13 +45,13 @@ const NUM_PIANO_KEYS = 60
  */
 const ROTARY_KNOB_1             = 0x15
 const FADER_1                   = 0x29
-const SOFTBUTTON_1              = 0x33  
+const SOFTBUTTON_1              = 0x33
 const SOFTBUTTON_9              = 0x3b
 const SOFTBUTTON_17             = 0x43
 const SCREEN_UP_BUTTON          = 0x51
 const SCREEN_DOWN_BUTTON        = 0x52
-const SCREEN_LAUNCH_TOP         = 0x53
-const SCREEN_LAUNCH_BOTTOM      = 0x54
+const SCENE_LAUNCH_TOP          = 0x53
+const SCENE_LAUNCH_BOTTOM       = 0x54
 const PADS_UP_BUTTON            = 0x55
 const PADS_DOWN_BUTTON          = 0x56
 const RIGHT_SOFTBUTTONS_UP      = 0x57
@@ -74,7 +74,7 @@ const PAD_9                     = 0x70
 
 /*
  * Constants for control LEDs using SYSEX commands.
- * The three-byte RGB control of the LEDs are set 
+ * The three-byte RGB control of the LEDs are set
  * using the CC values of the controls and the SYSEX
  * versions of the LED offsets. Since the colors in
  * InControl mode are derived from the Cubase track colors,
@@ -176,20 +176,9 @@ deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
     .expectInputNameEquals('To-Cubase')
     .expectOutputNameEquals('From-Cubase')
     .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
-
-deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
-    .expectInputNameEquals('To-Cubase')
-    .expectOutputNameEquals('From-Cubase')
-    .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
-
 }
 else
 {
-deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
-    .expectInputNameEquals('MIDIIN2 (Novation SL MkIII)')
-    .expectOutputNameEquals('MIDIOUT2 (Novation SL MkIII)')
-    .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
-
 deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
     .expectInputNameEquals('MIDIIN2 (Novation SL MkIII)')
     .expectOutputNameEquals('MIDIOUT2 (Novation SL MkIII)')
@@ -204,8 +193,8 @@ var trackGreen = [ ]
 var trackBlue = [ ]
 
 /**
- * LCD accessor functions to simplify use of the helper 
- * functions. 
+ * LCD accessor functions to simplify use of the helper
+ * functions.
  */
 function lcdActions( ) {
     var msg
@@ -247,8 +236,8 @@ function lcdActions( ) {
 }
 
 /**
- * LED accessor functions to simplify calling of helper 
- * functions. 
+ * LED accessor functions to simplify calling of helper
+ * functions.
  */
 function ledActions( ) {
     var msg
@@ -291,27 +280,38 @@ var led = new ledActions
 
 /**
  * Construct the Fader strip. Each fader strip includes a fader, and LED, and two buttons
- * above the fader. 
- * 
+ * above the fader.
+ *
  * @param faderIndex        Fader index.
  * @param x                 Horizontal location.
  * @param y                 Vertical location.
- * 
+ *
  * @return                  Constucted fader strip.
  */
 function makeFaderStrip(faderIndex, x, y) {
     var faderStrip = {}
 
-    /* The buttons may be expanded by moving to subPages and using the fader navigation
-     * buttons to browse pages. This is similar to what is already partly implemented for the
-     * knobs.
-     */
-    faderStrip.btnTop = surface.makeButton(x + 2 * faderIndex, y, 2, 1)
-    faderStrip.btnBottom = surface.makeButton(x + 2 * faderIndex, y + 1, 2, 1)
+    function createControls( ) {
+        /* The buttons may be expanded by moving to subPages and using the fader navigation
+         * buttons to browse pages. This is similar to what is already partly implemented for the
+         * knobs.
+         */
+        faderStrip.btnTop = surface.makeButton(x + 2 * faderIndex, y, 2, 1)
+        faderStrip.btnBottom = surface.makeButton(x + 2 * faderIndex, y + 1, 2, 1)
 
-    // Create faders and set to vertical. (Default). If you wanted horizontal, do that here.
-    faderStrip.fader = surface.makeFader(x + 2 * faderIndex, y + 3, 2, 6 )
-    faderStrip.fader.setTypeVertical( )
+        // Create faders and set to vertical. (Default). If you wanted horizontal, do that here.
+        faderStrip.fader = surface.makeFader(x + 2 * faderIndex, y + 3, 2, 6 )
+        faderStrip.fader.setTypeVertical( )
+    }
+
+    function bindControls( ) {
+        // Bind the fader buttons and faders.
+        faderStrip.btnTop.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_9 + faderIndex )
+        faderStrip.btnBottom.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_17 + faderIndex )
+        faderStrip.fader.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, FADER_1 + faderIndex )
+    }
+
+    createControls( )
 
     // Fader callback functions.
 
@@ -323,10 +323,10 @@ function makeFaderStrip(faderIndex, x, y) {
     }
 
     /**
-     * Callback when a fader color changes. 
-     *  
-     * Note that the color values received from Cubase here are 
-     * fractional values each color and the overall amplitude. 
+     * Callback when a fader color changes.
+     *
+     * Note that the color values received from Cubase here are
+     * fractional values each color and the overall amplitude.
      */
     faderStrip.fader.mSurfaceValue.mOnColorChange = function (context, r, g, b, a, IsActive ) {
         trackRed[ faderIndex ] = r * 127 * a
@@ -337,27 +337,27 @@ function makeFaderStrip(faderIndex, x, y) {
          * Update display row color.
          */
         function updateRow(rowIdx, red, green, blue ) {
-            lcd.displayColorRGB( context, SMALL_LCD_OFFSET + faderIndex, rowIdx, red, 
+            lcd.displayColorRGB( context, SMALL_LCD_OFFSET + faderIndex, rowIdx, red,
                                                            green, blue)
         }
-        led.colorRGB(context, FADER_1_LED + faderIndex, 
-                                               trackRed[faderIndex] * .8, 
-                                               trackGreen[ faderIndex ] * .8, 
+        led.colorRGB(context, FADER_1_LED + faderIndex,
+                                               trackRed[faderIndex] * .8,
+                                               trackGreen[ faderIndex ] * .8,
                                                trackBlue[ faderIndex ] * .8 )
 
         /**
          * Update color of the top and bottom bars.
          */
-        updateRow(SMALL_LCD_TOP_BAR, trackRed[ faderIndex ], trackGreen[ faderIndex ], 
+        updateRow(SMALL_LCD_TOP_BAR, trackRed[ faderIndex ], trackGreen[ faderIndex ],
                   trackBlue[ faderIndex ])
-        updateRow(SMALL_LCD_BOTTOM_BAR, trackRed[ faderIndex ], trackGreen[ faderIndex ], 
+        updateRow(SMALL_LCD_BOTTOM_BAR, trackRed[ faderIndex ], trackGreen[ faderIndex ],
                   trackBlue[ faderIndex ])
     }
 
 
-/**
+    /**
      * Callback for mute button.
-     * 
+     *
      * @param context   Device driver context.
      * @param value     New button value.
      */
@@ -375,61 +375,70 @@ function makeFaderStrip(faderIndex, x, y) {
 
     /**
      * Callback for solo button.
-     * 
+     *
      * @param context   Device driver context.
      * @param value     New button value.
      */
     faderStrip.btnBottom.mSurfaceValue.mOnProcessValueChange = function( context, value ) {
         if (value)
         {
-            led.colorRGB(context, SOFTBUTTON_17_LED + faderIndex, trackRed[ faderIndex ], trackGreen[ faderIndex ], 
+            led.colorRGB(context, SOFTBUTTON_17_LED + faderIndex, trackRed[ faderIndex ], trackGreen[ faderIndex ],
                   trackBlue[ faderIndex ])
-    }
+        }
         else
         {
             led.colorRGB(context, SOFTBUTTON_17_LED + faderIndex, 20, 20, 20 )
         }
     }
 
-    // Bind the fader buttons and faders.
-    faderStrip.btnTop.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_9 + faderIndex )
-    faderStrip.btnBottom.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_17 + faderIndex )
-    faderStrip.fader.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, FADER_1 + faderIndex )
+    bindControls( )
 
     return faderStrip
 }
 
 
 /**
- * Construct the knob subpages. Each knob subpage on the 
- * physical controller consists of controls and displays in a 
- * vertical column under the knob. 
- *  
- * @todo It seems likely that the pads should be grouped 
+ * Construct the knob subpages. Each knob subpage on the
+ * physical controller consists of controls and displays in a
+ * vertical column under the knob.
+ *
+ * @todo It seems likely that the pads should be grouped
  *       differently than currently. Likely they should have
  *       their own subpages. They are currently constructed but
  *       not bound to functions.
- * 
+ *
  * @param knobIndex     Knob index.
  * @param x             Horizontal location.
- * @param y             Vertical location. 
- *  
- * @return  Constructed knob strip. 
+ * @param y             Vertical location.
+ *
+ * @return  Constructed knob strip.
  */
 function makeKnobStrip(knobIndex, x, y) {
     var knobStrip = {}
-    
-    // Define some local helper functions to make the code more readable.
 
-    // Create the controls for each "knob strip".
-    knobStrip.knob = surface.makeKnob(x + 2 * knobIndex, y, 2, 2)
-    knobStrip.button = surface.makeButton(x + 2 * knobIndex, y + 4, 2, 1)
-    knobStrip.pad1 = surface.makeTriggerPad(x + 2 * knobIndex, y + 5, 2, 2)
-    knobStrip.pad2 = surface.makeTriggerPad(x + 2 * knobIndex, y + 7, 2, 2)
+    function createControls( ) {
+        // Create the controls for each "knob strip".
+        knobStrip.knob = surface.makeKnob(x + 2 * knobIndex, y, 2, 2)
+        knobStrip.button = surface.makeButton(x + 2 * knobIndex, y + 4, 2, 1)
+        knobStrip.pad1 = surface.makeTriggerPad(x + 2 * knobIndex, y + 5, 2, 2)
+        knobStrip.pad2 = surface.makeTriggerPad(x + 2 * knobIndex, y + 7, 2, 2)
+    }
+
+    function bindControls( ) {
+        /* Control bindings to knob assembly knobs, buttons, and pads to MIDI CC messages.
+         * The pads should probably be isolated into their own subpage but they're here for now.
+         */
+        knobStrip.knob.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, ROTARY_KNOB_1 + knobIndex).setTypeRelativeTwosComplement()
+        knobStrip.button.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SOFTBUTTON_1 + knobIndex)
+        knobStrip.pad1.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToNote(INCONTROLMIDICHANNEL, PAD_1 + knobIndex)
+        knobStrip.pad2.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToNote(INCONTROLMIDICHANNEL, PAD_9 + knobIndex)
+    }
+
+    createControls( )
 
     /**
-     * Callback for the display value when the knob rotation changes 
-     * value. 
+     * Callback for the display value when the knob rotation changes
+     * value.
      */
     knobStrip.knob.mSurfaceValue.mOnProcessValueChange = function (context, newValue ) {
         lcd.displayValue( context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_KNOB_VALUE, newValue * 127 )
@@ -441,8 +450,8 @@ function makeKnobStrip(knobIndex, x, y) {
         lcd.displayText(context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_TEXT_3, value )
     }
     /**
-     * Callback for the the display when the knob display title 
-     * change. 
+     * Callback for the the display when the knob display title
+     * change.
      */
     knobStrip.knob.mSurfaceValue.mOnTitleChange = function ( context, objectTitle, valueTitle) {
         lcd.displayText(context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_TEXT_2, valueTitle)
@@ -467,13 +476,7 @@ function makeKnobStrip(knobIndex, x, y) {
         }
     }
 
-    /* Control bindings to knob assembly knobs, buttons, and pads to MIDI CC messages.
-     * The pads should probably be isolated into their own subpage but they're here for now.
-     */
-    knobStrip.knob.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, ROTARY_KNOB_1 + knobIndex).setTypeRelativeTwosComplement()
-    knobStrip.button.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SOFTBUTTON_1 + knobIndex)
-    knobStrip.pad1.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToNote(INCONTROLMIDICHANNEL, PAD_1 + knobIndex)
-    knobStrip.pad2.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToNote(INCONTROLMIDICHANNEL, PAD_9 + knobIndex)
+    bindControls( )
 
     return knobStrip
 }
@@ -481,11 +484,11 @@ function makeKnobStrip(knobIndex, x, y) {
 
 /**
  * Construct the Transport buttons.
- * 
+ *
  * @param x     Horizontal location.
- * @param y     Verticle location. 
- *  
- * @return      Constructed tranport assembly. 
+ * @param y     Verticle location.
+ *
+ * @return      Constructed tranport assembly.
  */
 function makeTransport(x, y) {
     var transport = {}
@@ -495,28 +498,35 @@ function makeTransport(x, y) {
 
     var currX = x
 
-    // Create the buttons.
+    function createControls( ) {
+        // Create the buttons.
 
-    transport.btnRewind = surface.makeButton(currX, y, w, h)
-    currX += w
-    transport.btnForward = surface.makeButton(currX, y, w, h)
-    currX += w
-    transport.btnStop = surface.makeButton(currX, y, w, h)
-    currX += w
-    transport.btnStart = surface.makeButton(currX, y, w, h)
-    currX += w
-    transport.btnCycle = surface.makeButton(currX, y, w, h)
-    currX += w
-    transport.btnRecord = surface.makeButton(currX, y, w, h)
-    currX += w
+        transport.btnRewind = surface.makeButton(currX, y, w, h)
+        currX += w
+            transport.btnForward = surface.makeButton(currX, y, w, h)
+        currX += w
+            transport.btnStop = surface.makeButton(currX, y, w, h)
+        currX += w
+            transport.btnStart = surface.makeButton(currX, y, w, h)
+        currX += w
+            transport.btnCycle = surface.makeButton(currX, y, w, h)
+        currX += w
+        transport.btnRecord = surface.makeButton(currX, y, w, h)
+        currX += w
+    }
 
-    // Bind MIDI CC to the physical buttons.
-    transport.btnRewind.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, REWIND)
-    transport.btnForward.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, FAST_FORWARD)
-    transport.btnStop.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, STOP_BUTTON)
-    transport.btnStart.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, PLAY_BUTTON)
-    transport.btnCycle.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, LOOP_BUTTON)
-    transport.btnRecord.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, RECORD_BUTTON)
+    function bindControls( ) {
+        // Bind MIDI CC to the physical buttons.
+        transport.btnRewind.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, REWIND)
+        transport.btnForward.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, FAST_FORWARD)
+        transport.btnStop.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, STOP_BUTTON)
+        transport.btnStart.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, PLAY_BUTTON)
+        transport.btnCycle.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, LOOP_BUTTON)
+        transport.btnRecord.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, RECORD_BUTTON)
+    }
+
+    createControls( )
+    bindControls( )
 
     return transport
 }
@@ -524,8 +534,8 @@ function makeTransport(x, y) {
 
 /**
  * Construct the control surface elements.
- *  
- * @return  Constructed control surface assembly. 
+ *
+ * @return  Constructed control surface assembly.
  */
 function makeSurfaceElements() {
     var surfaceElements = {}
@@ -538,58 +548,110 @@ function makeSurfaceElements() {
     var xKnobStrip = 6
     var yKnobStrip = 0
 
-    // Create device label.
-    surfaceElements.deviceLabel = surface.makeLabelField(45, 0, 7, 2)
+    function createControls( ) {
+        // Create device label.
+        surfaceElements.deviceLabel = surface.makeLabelField(45, 0, 7, 2)
 
-    // Pitch and Mod are commented for now. 
-    //surfaceElements.modWheel = surface.makeModWheel(3, 11, 1, 6)
-    //surfaceElements.pitchwheel = surface.makePitchBend( 1, 11, 1, 6 )
+        // Pitch and Mod are commented for now.
+        //surfaceElements.modWheel = surface.makeModWheel(3, 11, 1, 6)
+        //surfaceElements.pitchwheel = surface.makePitchBend( 1, 11, 1, 6 )
 
-    // Create left.right arrow buttons.
-    surfaceElements.btn_prevTrack = surface.makeButton(0, 7, 2, 1)
-    surfaceElements.btn_nextTrack = surface.makeButton(2, 7, 2, 1)
+        // Create left.right arrow buttons.
+        surfaceElements.btn_prevTrack = surface.makeButton(0, 7, 2, 1)
+        surfaceElements.btn_nextTrack = surface.makeButton(2, 7, 2, 1)
 
-    surfaceElements.btn_prevKnobSubPage = surface.makeButton(4, 2, 2, 1)
-    surfaceElements.btn_nextKnobSubPage = surface.makeButton(4, 3, 2, 1)
+        surfaceElements.btn_prevKnobSubPage = surface.makeButton(4, 2, 2, 1)
+        surfaceElements.btn_nextKnobSubPage = surface.makeButton(4, 3, 2, 1)
 
-    surfaceElements.btn_prevDriverPage = surface.makeButton(4, 5, 2, 2)
-    surfaceElements.btn_prevDriverPage.setShapeCircle()
+        surfaceElements.btn_prevDriverPage = surface.makeButton(4, 5, 2, 2)
+        surfaceElements.btn_prevDriverPage.setShapeCircle()
 
-    surfaceElements.btn_nextDriverPage = surface.makeButton(4, 7, 2, 2)
-    surfaceElements.btn_nextDriverPage.setShapeCircle()
+        surfaceElements.btn_nextDriverPage = surface.makeButton(4, 7, 2, 2)
+        surfaceElements.btn_nextDriverPage.setShapeCircle()
 
-    surfaceElements.btn_prevFaderSubPage = surface.makeButton( 40, 0, 2, 1 )
-    surfaceElements.btn_nextFaderSubPage = surface.makeButton( 40, 1, 2, 1 )
+        surfaceElements.btn_prevFaderSubPage = surface.makeButton( 40, 0, 2, 1 )
+        surfaceElements.btn_nextFaderSubPage = surface.makeButton( 40, 1, 2, 1 )
 
-    // Construct the dummy display placeholders.
-    surfaceElements.knobStripBlindPanel = surface.makeBlindPanel(xKnobStrip, yKnobStrip + 2, surfaceElements.numStrips * 2, 2)
-    surfaceElements.knobStripBlindPanel2 = surface.makeBlindPanel(xKnobStrip + 16, yKnobStrip + 2, 2, 2)
+        surfaceElements.btn_options = surface.makeButton( 22, 4, 2, 1 )
+        surfaceElements.btn_grid = surface.makeButton( 4, 4, 2, 1 )
+        surfaceElements.btn_clear = surface.makeButton( 0, 6, 2, 1 )
+        surfaceElements.btn_duplicate = surface.makeButton(  0, 5, 2, 1  )
+        surfaceElements.btn_padLeft = surface.makeButton( 22, 5, 2, 2 )
+        surfaceElements.btn_padLeft.setShapeCircle( )
+        surfaceElements.btn_padRight = surface.makeButton( 22, 7, 2, 2 )
+        surfaceElements.btn_padRight.setShapeCircle( )
 
-    // Create piano keys.
-    surfaceElements.pianoKeys = surface.makePianoKeys(5, 10, 48, 7, 0, NUM_PIANO_KEYS)
+        // Construct the dummy display placeholders.
+        surfaceElements.knobStripBlindPanel = surface.makeBlindPanel(xKnobStrip, yKnobStrip + 2, surfaceElements.numStrips * 2, 2)
+        surfaceElements.knobStripBlindPanel2 = surface.makeBlindPanel(xKnobStrip + 16, yKnobStrip + 2, 2, 2)
 
-    /* Create the fader and knob assemblies. Currently the binding is also done here.
-     * These assemblies are currently common to all control pages. In the near future
-     * the binding code will be moved to separate functions so that the creation of the
-     * assemblies is is not coupled to the binding. This will allow independent use of the
-     * controls across the control pages, rather than the same functionality common to all
-     * pages.
-     */
-    for(var i = 0; i < surfaceElements.numStrips; ++i) {
-        surfaceElements.faderStrips[i] = makeFaderStrip(i, 24, 0)
-        surfaceElements.knobStrips[i] = makeKnobStrip(i, xKnobStrip, yKnobStrip)
+        // Create piano keys.
+        surfaceElements.pianoKeys = surface.makePianoKeys(5, 10, 48, 7, 0, NUM_PIANO_KEYS)
+
+        /* Create the fader and knob assemblies. Currently the binding is also done here.
+         * These assemblies are currently common to all control pages. In the near future
+         * the binding code will be moved to separate functions so that the creation of the
+         * assemblies is is not coupled to the binding. This will allow independent use of the
+         * controls across the control pages, rather than the same functionality common to all
+         * pages.
+         */
+        for(var i = 0; i < surfaceElements.numStrips; ++i) {
+            surfaceElements.faderStrips[i] = makeFaderStrip(i, 24, 0)
+            surfaceElements.knobStrips[i] = makeKnobStrip(i, xKnobStrip, yKnobStrip)
+        }
     }
+
+    function bindControls( ) {
+
+        // Bind the navigation controls.
+        surfaceElements.btn_prevKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SCREEN_UP_BUTTON)
+        surfaceElements.btn_nextKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SCREEN_DOWN_BUTTON)
+        surfaceElements.btn_prevDriverPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, PADS_UP_BUTTON)
+        surfaceElements.btn_nextDriverPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, PADS_DOWN_BUTTON)
+        surfaceElements.btn_prevFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, RIGHT_SOFTBUTTONS_UP)
+        surfaceElements.btn_nextFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, RIGHT_SOFTBUTTONS_DOWN)
+        // Bind controls common to all pages.
+        surfaceElements.btn_options.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, OPTIONS_BUTTON)
+        surfaceElements.btn_grid.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, GRID_BUTTON)
+        surfaceElements.btn_clear.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, CLEAR_BUTTON)
+        surfaceElements.btn_duplicate.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, DUPLICATE_BUTTON)
+        surfaceElements.btn_padLeft.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SCENE_LAUNCH_TOP)
+        surfaceElements.btn_padRight.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SCENE_LAUNCH_BOTTOM)
+        surfaceElements.btn_prevTrack.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, TRACK_LEFT )
+        surfaceElements.btn_nextTrack.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, TRACK_RIGHT )
+
+        /**
+         * Transport button value change callback.
+         *
+         * @param button    Button index.
+         * @param ledID     LED index.
+         * @param colorID   Color index.
+         */
+        function makeTransportDisplayFeedback(button, ledID, colorId ) {
+            /**
+             * Callback for value changes to the transport buttons
+             * and controlling the colors of the buttons.
+             */
+            button.mSurfaceValue.mOnProcessValueChange = function (context, newValue) {
+                led.color(context, ledID, colorId * newValue )
+            }
+        }
+
+        // Bind the buttons values to control transport.
+        makeTransportDisplayFeedback(surfaceElements.transport.btnRewind, REWIND, 9 )
+        makeTransportDisplayFeedback(surfaceElements.transport.btnForward, FAST_FORWARD, 9 )
+        makeTransportDisplayFeedback(surfaceElements.transport.btnStop, STOP_BUTTON, 119 )
+        makeTransportDisplayFeedback(surfaceElements.transport.btnStart, PLAY_BUTTON, 22 )
+        makeTransportDisplayFeedback(surfaceElements.transport.btnCycle, LOOP_BUTTON, 54 )
+        makeTransportDisplayFeedback(surfaceElements.transport.btnRecord, RECORD_BUTTON, 5 )
+    }
+
+    createControls( )
 
     // Create the transport control assembly.
     surfaceElements.transport = makeTransport(41, 7)
 
-    // Bind the navigation controls.
-    surfaceElements.btn_prevKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SCREEN_UP_BUTTON)
-    surfaceElements.btn_nextKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, SCREEN_DOWN_BUTTON)
-    surfaceElements.btn_prevDriverPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, PADS_UP_BUTTON)
-    surfaceElements.btn_nextDriverPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, PADS_DOWN_BUTTON)
-    surfaceElements.btn_prevFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, RIGHT_SOFTBUTTONS_UP)
-    surfaceElements.btn_nextFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToControlChange(INCONTROLMIDICHANNEL, RIGHT_SOFTBUTTONS_DOWN)
+    bindControls( )
 
     return surfaceElements
 }
@@ -597,41 +659,17 @@ function makeSurfaceElements() {
 
 var surfaceElements = makeSurfaceElements()
 
-/**
- * Transport button value change callback.
- * 
- * @param button    Button index.
- * @param ledID     LED index.
- * @param colorID   Color index.
- */
-function makeTransportDisplayFeedback(button, ledID, colorId ) {
-    /**
-     * Callback for value changes to the transport buttons 
-     * and controlling the colors of the buttons. 
-     */
-	button.mSurfaceValue.mOnProcessValueChange = function (context, newValue) {
-        led.color(context, ledID, colorId * newValue )
-	}
-}
-
-// Bind the buttons values to control transport.
-makeTransportDisplayFeedback(surfaceElements.transport.btnRewind, REWIND, 9 )
-makeTransportDisplayFeedback(surfaceElements.transport.btnForward, FAST_FORWARD, 9 )
-makeTransportDisplayFeedback(surfaceElements.transport.btnStop, STOP_BUTTON, 119 )
-makeTransportDisplayFeedback(surfaceElements.transport.btnStart, PLAY_BUTTON, 22 )
-makeTransportDisplayFeedback(surfaceElements.transport.btnCycle, LOOP_BUTTON, 54 )
-makeTransportDisplayFeedback(surfaceElements.transport.btnRecord, RECORD_BUTTON, 5)
 
 
 /**
  * Construct a control page that includes bindings common to all
- * pages. The goal is for this function to be called in the 
- * creation of all pages such that a common navigation method is 
- * maintained across all pages by using the same controls. 
- * 
- * @param name Page name. 
- *  
- * @return Constructed page. 
+ * pages. The goal is for this function to be called in the
+ * creation of all pages such that a common navigation method is
+ * maintained across all pages by using the same controls.
+ *
+ * @param name Page name.
+ *
+ * @return Constructed page.
  */
 function makePageWithDefaults(name) {
     var page = deviceDriver.mMapping.makePage(name)
@@ -639,7 +677,7 @@ function makePageWithDefaults(name) {
 
     // Create device label.
     page.setLabelFieldText(surfaceElements.deviceLabel, "61SL MKIII")
-  
+
     /* Bind the buttons for SL Part selection. Each part selection
      * selects the associated Cubase track for the part.
      */
@@ -647,41 +685,45 @@ function makePageWithDefaults(name) {
         .excludeInputChannels()
         .excludeOutputChannels()
 
-    /**
-     * Bind the Host mixer track to the selection buttons.
-     */
-    function bindChannelBankItem(index) {
-        var channelBankItem = hostMixerBankZone.makeMixerBankChannel()
-        var selectedButtonValue = surfaceElements.knobStrips[index].button.mSurfaceValue;
+    function bindControls( ) {
+        /**
+         * Bind the Host mixer track to the selection buttons.
+         */
+        function bindChannelBankItem(index) {
+            var channelBankItem = hostMixerBankZone.makeMixerBankChannel()
+            var selectedButtonValue = surfaceElements.knobStrips[index].button.mSurfaceValue;
 
-        // Bind the Cubase selected track with the currently selected button.
-        page.makeValueBinding(selectedButtonValue, channelBankItem.mValue.mSelected)
-    }
-    for (var i = 0; i < numParts; ++i )
-    {
-        bindChannelBankItem(i)
+            // Bind the Cubase selected track with the currently selected button.
+            page.makeValueBinding(selectedButtonValue, channelBankItem.mValue.mSelected)
+        }
+        for (var i = 0; i < numParts; ++i )
+        {
+            bindChannelBankItem(i)
+        }
+
+        // Bind the Host transport to the transport controls.
+        page.makeValueBinding(surfaceElements.transport.btnRewind.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRewind)
+        page.makeValueBinding(surfaceElements.transport.btnForward.mSurfaceValue, page.mHostAccess.mTransport.mValue.mForward)
+        page.makeValueBinding(surfaceElements.transport.btnStop.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStop).setTypeToggle()
+        page.makeValueBinding(surfaceElements.transport.btnStart.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStart).setTypeToggle()
+        page.makeValueBinding(surfaceElements.transport.btnCycle.mSurfaceValue, page.mHostAccess.mTransport.mValue.mCycleActive).setTypeToggle()
+        page.makeValueBinding(surfaceElements.transport.btnRecord.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord).setTypeToggle()
     }
 
-    // Bind the Host transport to the transport controls.
-    page.makeValueBinding(surfaceElements.transport.btnRewind.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRewind)
-    page.makeValueBinding(surfaceElements.transport.btnForward.mSurfaceValue, page.mHostAccess.mTransport.mValue.mForward)
-    page.makeValueBinding(surfaceElements.transport.btnStop.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStop).setTypeToggle()
-    page.makeValueBinding(surfaceElements.transport.btnStart.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStart).setTypeToggle()
-    page.makeValueBinding(surfaceElements.transport.btnCycle.mSurfaceValue, page.mHostAccess.mTransport.mValue.mCycleActive).setTypeToggle()
-    page.makeValueBinding(surfaceElements.transport.btnRecord.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord).setTypeToggle()
+    bindControls()
 
     return page
 }
 
 
 /**
- * Constuct a page for controls on the selected track. This page 
- * was a part of the original test driver. It will likely be 
- * replaced with the "Parts" page that was created for changing 
- * the control paradigm to resemble the standalone behavior of 
- * the SL controls. 
- * 
- * @return  Constructed selected track page. 
+ * Constuct a page for controls on the selected track. This page
+ * was a part of the original test driver. It will likely be
+ * replaced with the "Parts" page that was created for changing
+ * the control paradigm to resemble the standalone behavior of
+ * the SL controls.
+ *
+ * @return  Constructed selected track page.
  */
 function makePageSelectedTrack() {
     var page = makePageWithDefaults('Selected Track')
@@ -690,21 +732,21 @@ function makePageSelectedTrack() {
 
     for(var idx = 0; idx < surfaceElements.knobStrips.length; ++idx)
         page.makeValueBinding (surfaceElements.knobStrips[idx].knob.mSurfaceValue, selectedTrackChannel.mQuickControls.getByIndex(idx))
-    
+
     page.makeActionBinding(surfaceElements.btn_prevDriverPage.mSurfaceValue, deviceDriver.mAction.mPrevPage)
     page.makeActionBinding(surfaceElements.btn_nextDriverPage.mSurfaceValue, deviceDriver.mAction.mNextPage)
-    
+
     return page
 }
 
 
 /**
  * Construct subpage within the specified subpage area.
- * 
+ *
  * @param subPageArea   Area to contain subpages.
- * @param name          Subpage name. 
- *  
- * @return  Constructed subpage. 
+ * @param name          Subpage name.
+ *
+ * @return  Constructed subpage.
  */
 function makeSubPage(subPageArea, name) {
     var subPage = subPageArea.makeSubPage(name)
@@ -719,12 +761,12 @@ function makeSubPage(subPageArea, name) {
 
 
 /**
- * Constuct the mixer page.This page was part of the original 
- * test driver. It has been modified somewhat, primarily to 
- * remove "Volume" from the knobs, since volume is already 
- * mapped to the faders. 
- * 
- * @return  Constructed mixer page. 
+ * Constuct the mixer page.This page was part of the original
+ * test driver. It has been modified somewhat, primarily to
+ * remove "Volume" from the knobs, since volume is already
+ * mapped to the faders.
+ *
+ * @return  Constructed mixer page.
  */
 function makePageMixer() {
     var page = makePageWithDefaults('Mixer')
@@ -797,11 +839,11 @@ function makePageMixer() {
 }
 
 /**
- * Create a page for the settings in each SL Part. This a a new 
- * page for development of the SL navigation resembling the 
- * standalone operation while in InControl mode. 
- *  
- * @return Created page. 
+ * Create a page for the settings in each SL Part. This a a new
+ * page for development of the SL navigation resembling the
+ * standalone operation while in InControl mode.
+ *
+ * @return Created page.
  */
 function makePageParts() {
     // Create "Parts" page with the common controls.
