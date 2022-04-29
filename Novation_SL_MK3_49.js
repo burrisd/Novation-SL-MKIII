@@ -185,7 +185,7 @@ deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
     .expectSysexIdentityResponse(/*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000')
 }
 
-var surface = deviceDriver.mSurface
+//var surface = deviceDriver.mSurface
 
 // Define some global data for the application.
 var trackRed = [ ]
@@ -291,6 +291,13 @@ var led = new ledActions
 function makeFaderStrip(faderIndex, x, y) {
     var faderStrip = {}
 
+    var surface = deviceDriver.mSurface
+
+    createControls( )
+
+    /**
+     * Create the surface controls.
+     */
     function createControls( ) {
         /* The buttons may be expanded by moving to subPages and using the fader navigation
          * buttons to browse pages. This is similar to what is already partly implemented for the
@@ -304,14 +311,15 @@ function makeFaderStrip(faderIndex, x, y) {
         faderStrip.fader.setTypeVertical( )
     }
 
+    /**
+     * Bind the controls.
+     */
     function bindControls( ) {
         // Bind the fader buttons and faders.
         faderStrip.btnTop.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_9 + faderIndex )
         faderStrip.btnBottom.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, SOFTBUTTON_17 + faderIndex )
         faderStrip.fader.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, FADER_1 + faderIndex )
     }
-
-    createControls( )
 
     // Fader callback functions.
 
@@ -415,7 +423,11 @@ function makeFaderStrip(faderIndex, x, y) {
  */
 function makeKnobStrip(knobIndex, x, y) {
     var knobStrip = {}
+    var surface = deviceDriver.mSurface
 
+    /**
+     * Create the controls.
+     */
     function createControls( ) {
         // Create the controls for each "knob strip".
         knobStrip.knob = surface.makeKnob(x + 2 * knobIndex, y, 2, 2)
@@ -424,6 +436,11 @@ function makeKnobStrip(knobIndex, x, y) {
         knobStrip.pad2 = surface.makeTriggerPad(x + 2 * knobIndex, y + 7, 2, 2)
     }
 
+    createControls( )
+
+    /**
+     * Bind controls.
+     */
     function bindControls( ) {
         /* Control bindings to knob assembly knobs, buttons, and pads to MIDI CC messages.
          * The pads should probably be isolated into their own subpage but they're here for now.
@@ -433,8 +450,6 @@ function makeKnobStrip(knobIndex, x, y) {
         knobStrip.pad1.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToNote(INCONTROLMIDICHANNEL, PAD_1 + knobIndex)
         knobStrip.pad2.mSurfaceValue.mMidiBinding.setInputPort(midiInput).bindToNote(INCONTROLMIDICHANNEL, PAD_9 + knobIndex)
     }
-
-    createControls( )
 
     /**
      * Callback for the display value when the knob rotation changes
@@ -456,7 +471,7 @@ function makeKnobStrip(knobIndex, x, y) {
     knobStrip.knob.mSurfaceValue.mOnTitleChange = function ( context, objectTitle, valueTitle) {
         lcd.displayText(context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_TEXT_2, valueTitle)
         lcd.displayText( context, SMALL_LCD_OFFSET + knobIndex, SMALL_LCD_TEXT_1, objectTitle )
-        var msg = lcd.notification( context, 'Version', 'v0.0.3' )
+        var msg = lcd.notification( context, 'Version', 'v0.0.4' )
     }
     /**
      * Callback for when button value changes.
@@ -492,6 +507,8 @@ function makeKnobStrip(knobIndex, x, y) {
  */
 function makeTransport(x, y) {
     var transport = {}
+
+    var surface = deviceDriver.mSurface
 
     var w = 2
     var h = 2
@@ -539,6 +556,7 @@ function makeTransport(x, y) {
  */
 function makeSurfaceElements() {
     var surfaceElements = {}
+    var surface = deviceDriver.mSurface
 
     surfaceElements.numStrips = 8
 
@@ -548,6 +566,9 @@ function makeSurfaceElements() {
     var xKnobStrip = 6
     var yKnobStrip = 0
 
+    /**
+     * Create controls.
+     */
     function createControls( ) {
         // Create device label.
         surfaceElements.deviceLabel = surface.makeLabelField(45, 0, 7, 2)
@@ -601,6 +622,11 @@ function makeSurfaceElements() {
         }
     }
 
+    createControls( )
+
+    /**
+     * Bind controls.
+     */
     function bindControls( ) {
 
         // Bind the navigation controls.
@@ -646,7 +672,6 @@ function makeSurfaceElements() {
         makeTransportDisplayFeedback(surfaceElements.transport.btnRecord, RECORD_BUTTON, 5 )
     }
 
-    createControls( )
 
     // Create the transport control assembly.
     surfaceElements.transport = makeTransport(41, 7)
@@ -685,6 +710,9 @@ function makePageWithDefaults(name) {
         .excludeInputChannels()
         .excludeOutputChannels()
 
+    /**
+     * Bind controls.
+     */
     function bindControls( ) {
         /**
          * Bind the Host mixer track to the selection buttons.
@@ -730,11 +758,18 @@ function makePageSelectedTrack() {
 
     var selectedTrackChannel = page.mHostAccess.mTrackSelection.mMixerChannel
 
-    for(var idx = 0; idx < surfaceElements.knobStrips.length; ++idx)
+    /**
+     * Bind controls.
+     */
+    function bindControls( ) {
+        for(var idx = 0; idx < surfaceElements.knobStrips.length; ++idx)
         page.makeValueBinding (surfaceElements.knobStrips[idx].knob.mSurfaceValue, selectedTrackChannel.mQuickControls.getByIndex(idx))
 
     page.makeActionBinding(surfaceElements.btn_prevDriverPage.mSurfaceValue, deviceDriver.mAction.mPrevPage)
     page.makeActionBinding(surfaceElements.btn_nextDriverPage.mSurfaceValue, deviceDriver.mAction.mNextPage)
+    }
+
+    bindControls( )
 
     return page
 }
@@ -824,16 +859,24 @@ function makePageMixer() {
 
     }
 
-    for(var i = 0; i < numParts; ++i)
-        bindChannelBankItem(i)
-
-    // Binding for subpage navigation.
+    /**
+     * Bind controls.
+     */
+    function bindControls( ) {
+        // Binding for subpage navigation.
     page.makeActionBinding(surfaceElements.btn_prevKnobSubPage.mSurfaceValue, knobSubPageArea.mAction.mPrev)
     page.makeActionBinding(surfaceElements.btn_nextKnobSubPage.mSurfaceValue, knobSubPageArea.mAction.mNext)
     page.makeActionBinding(surfaceElements.btn_prevDriverPage.mSurfaceValue, deviceDriver.mAction.mPrevPage)
     page.makeActionBinding(surfaceElements.btn_nextDriverPage.mSurfaceValue, deviceDriver.mAction.mNextPage)
     //page.makeActionBinding(surfaceElements.btn_prevFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mPrev)
     //page.makeActionBinding(surfaceElements.btn_nextFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mNext)
+
+        for(var i = 0; i < numParts; ++i)
+            bindChannelBankItem(i)
+
+    }
+
+    bindControls( )
 
     return page
 }
@@ -854,6 +897,16 @@ function makePageParts() {
     var knobSubPageArea = page.makeSubPageArea('Knob Area')
     var faderSubpageArea = page.makeSubPageArea( 'Fader Area' )
 
+    function bindControls( ) {
+        // Make the bindings to traverse SL Parts. Each Part is a subpage.
+    page.makeActionBinding(surfaceElements.btn_prevKnobSubPage.mSurfaceValue, knobSubPageArea.mAction.mPrev)
+    page.makeActionBinding(surfaceElements.btn_nextKnobSubPage.mSurfaceValue, knobSubPageArea.mAction.mNext)
+    page.makeActionBinding(surfaceElements.btn_prevFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mPrev)
+    page.makeActionBinding(surfaceElements.btn_nextFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mNext)
+    page.makeActionBinding(surfaceElements.btn_prevDriverPage.mSurfaceValue, deviceDriver.mAction.mPrevPage)
+    page.makeActionBinding(surfaceElements.btn_nextDriverPage.mSurfaceValue, deviceDriver.mAction.mNextPage)
+    }
+
     // Create the subppages for each of the eight parts.
     for(var subPageIdx = 0; subPageIdx < numParts; ++subPageIdx) {
         var nameSubPage = 'Knob Page ' + (subPageIdx + 1).toString()
@@ -863,13 +916,7 @@ function makePageParts() {
         subPagePart = makeSubPage( faderSubpageArea, nameSubPage )
     }
 
-    // Make the bindings to traverse SL Parts. Each Part is a subpage.
-    page.makeActionBinding(surfaceElements.btn_prevKnobSubPage.mSurfaceValue, knobSubPageArea.mAction.mPrev)
-    page.makeActionBinding(surfaceElements.btn_nextKnobSubPage.mSurfaceValue, knobSubPageArea.mAction.mNext)
-    page.makeActionBinding(surfaceElements.btn_prevFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mPrev)
-    page.makeActionBinding(surfaceElements.btn_nextFaderSubPage.mSurfaceValue, faderSubpageArea.mAction.mNext)
-    page.makeActionBinding(surfaceElements.btn_prevDriverPage.mSurfaceValue, deviceDriver.mAction.mPrevPage)
-    page.makeActionBinding(surfaceElements.btn_nextDriverPage.mSurfaceValue, deviceDriver.mAction.mNextPage)
+    bindControls( )
 
     return page
 }
