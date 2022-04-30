@@ -402,7 +402,7 @@ function makeKnobStrip( knobIndex, x, y )
         lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.text.TEXT_2, valueTitle )
         lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.text.TEXT_1, objectTitle )
 
-        var msg = lcdApi.notification( context, 'Version', 'v0.0.4' )
+        var msg = lcdApi.notification( context, 'Version', 'v0.0.5' )
     }
     /**
      * Callback for when button value changes.
