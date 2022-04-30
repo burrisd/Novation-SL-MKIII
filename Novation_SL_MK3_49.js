@@ -406,7 +406,7 @@ function makeFaderStrip( faderIndex, x, y )
      * Callback when a fader title changes.
      */
     faderStrip.fader.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle ) {
-        lcdApi.displayText( context, SMALL_LCD_OFFSET + faderIndex, knobLayout.TEXT_4, objectTitle )
+        lcdApi.displayText( context, SMALL_LCD_OFFSET + faderIndex, knobLayout.text.TEXT_4, objectTitle )
     }
 
     /**
