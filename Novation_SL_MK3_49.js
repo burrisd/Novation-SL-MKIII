@@ -1064,8 +1064,8 @@ pageMixer.mOnActivate = function( context )
      * here. They should be moved to a subpage and
      * handled in the subpage OnActive( ) callback.
      */
-    lcdApi.displayText( context, CENTER_LCD_OFFSET, centerLayout.TEXT_1, 'Mute' )
-    lcdApi.displayText( context, CENTER_LCD_OFFSET, centerLayout.TEXT_2, 'Solo' )
+    lcdApi.displayText( context, CENTER_LCD_OFFSET, centerLayout.text.RIGHT_1, 'Mute' )
+    lcdApi.displayText( context, CENTER_LCD_OFFSET, centerLayout.text.RIGHT_2, 'Solo' )
 }
 
 /**
