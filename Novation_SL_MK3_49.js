@@ -25,7 +25,8 @@
  *  to update the displays and LEDs based on values passed in to
  *  the functions.
  */
-var helper         = require( './helper' );
+var helper          = require( './helper' );
+var define          = require( './constants' )
 
 /*
  *  NOTE:   When controlling LEDs, it is important to understand
@@ -35,164 +36,6 @@ var helper         = require( './helper' );
  *          and the ID from the SYSEX group must be used.
  */
 
-/*
- * Constants for physical controls in InControl mode.
- * The single-byte color offset uses these control values,
- * which are the same as the controls. These use NOTE ON
- * values sent to channel 16.
- */
-const   controlCC =
-{
-    ROTARY_KNOB_1             : 0x15,
-    FADER_1                   : 0x29,
-    SOFTBUTTON_1              : 0x33,
-    SOFTBUTTON_9              : 0x3b,
-    SOFTBUTTON_17             : 0x43,
-    SCREEN_UP_BUTTON          : 0x51,
-    SCREEN_DOWN_BUTTON        : 0x52,
-    SCENE_LAUNCH_TOP          : 0x53,
-    SCENE_LAUNCH_BOTTOM       : 0x54,
-    PADS_UP_BUTTON            : 0x55,
-    PADS_DOWN_BUTTON          : 0x56,
-    RIGHT_SOFTBUTTONS_UP      : 0x57,
-    RIGHT_SOFTBUTTONS_DOWN    : 0x58,
-    GRID_BUTTON               : 0x59,
-    OPTIONS_BUTTON            : 0x5a,
-    SHIFT_BUTTON              : 0x5b,
-    DUPLICATE_BUTTON          : 0x5c,
-    CLEAR_BUTTON              : 0x5d,
-    TRACK_LEFT                : 0x66,
-    TRACK_RIGHT               : 0x67,
-    REWIND                    : 0x70,
-    FAST_FORWARD              : 0x71,
-    STOP_BUTTON               : 0x72,
-    PLAY_BUTTON               : 0x73,
-    LOOP_BUTTON               : 0x74,
-    RECORD_BUTTON             : 0x75,
-    PAD_1                     : 0x60,
-    PAD_9                     : 0x70
-}
-
-
-/*
- * Constants for control LEDs using SYSEX commands.
- * The three-byte RGB control of the LEDs are set
- * using the CC values of the controls and the SYSEX
- * versions of the LED offsets. Since the colors in
- * InControl mode are derived from the Cubase track colors,
- * these will be the promary means of controlling colors.
- */
-const   ledRGBCC =
-{
-    FADER_1                 : 0x36,
-    SOFTBUTTON_1            : 0x04,
-    SOFTBUTTON_9            : 0x0c,
-    SOFTBUTTON_17           : 0x14,
-    SCREEN_UP               : 0x3e,
-    SCREEN_DOWN             : 0x3f,
-    SCREEN_LAUNCH_TOP       : 0x03,
-    SCREEN_LAUNCH_BOTTOM    : 0x04,
-    PADS_UP                 : 0x00,
-    PADS_DOWN               : 0x01,
-    RIGHT_SOFTBUTTONS_UP    : 0x1c,
-    RIGHT_SOFTBUTTONS_DOWN  : 0x1d,
-    GRID_BUTTON             : 0x40,
-    OPTIONS_BUTTON          : 0x41,
-    DUPLICATE_BUTTON        : 0x42,
-    CLEAR_BUTTON            : 0x43,
-    TRACK_LEFT              : 0x1e,
-    TRACK_RIGHT             : 0x1f,
-    REWIND                  : 0x21,
-    FAST_FORWARD            : 0x22,
-    STOP_BUTTON             : 0x23,
-    PLAY_BUTTON             : 0x24,
-    LOOP_BUTTON             : 0x25,
-    RECORD_BUTTON           : 0x20,
-    PAD_1                   : 0x26,
-    PAD_9                   : 0x2e
-}
-
-/*
- * Small screen layout definitions.
- */
-const lcdLayout =
-{
-    EMPTY        : 0,     /*!< Blank screen. */
-    KNOB         : 1,     /*!< Knob layout. */
-    BOX          : 2,     /*!< Text box layout. */
-}
-
-const knobLayout =
-{
-    color:
-    {
-        TOP_BAR             : 0,    /*!< Top color bar. */
-        KNOB_ICON           : 1,    /*!< Knob icon color. */
-        BOTTOM_BAR          : 2     /*!< Bottom color bar. */
-    },
-    text:
-    {
-        TEXT_1              : 0,    /*!< Text line 1. */
-        TEXT_2              : 1,    /*!< Text line 2. */
-        TEXT_3              : 2,    /*!< Text line 3. */
-        TEXT_4              : 3     /*!< Text line 4. */
-    },
-    value:
-    {
-        KNOB_VALUE          : 0,    /*!< Knob value. */
-        SELECTED            : 1     /*!< Selected indicator sets text 4 to lower bar color. */
-    }
-}
-
-const boxLayout =
-{
-    color:
-    {
-        TOP_BOX             : 0,    /*!< Top box color. */
-        CENTER_BOX          : 1,    /*!< Center box color. */
-        BOTTOM_BOX          : 2     /*!< Bottom box color. */
-    },
-    text:
-    {
-        TOP_TEXT_1          : 0,    /*!< Top box line 1. */
-        TOP_TEXT_2          : 1,    /*!< Top box line 2. */
-        CENTER_TEXT_1       : 2,    /*!< Center box line 1. */
-        CENTER_TEXT_2       : 3,    /*!< Center box line 2. */
-        LOWER_TEXT_1        : 4,    /*!< Lower box line 1. */
-        LOWER_TEXT_2        : 5     /*!< Lower box line 2. */
-    },
-    value:
-    {
-        TOP_SELECTED        : 0,    /*!< Top box selected, solid color or border. */
-        CENTER_SELECTED     : 1,    /*!< Center box selected, solid color or border. */
-        LOWER_SELECTED      : 2     /*!< Lower box selected, solid color or border. */
-    }
-}
-
-
-const centerLayout =
-{
-    color:
-    {
-        LEFT_BAR           : 0,    /*!< Left color bar. */
-        TOP_RIGHT_BAR      : 1,    /*!< Top right color bar. */
-        BOTTOM_RIGHT_BAR   : 2     /*!< Bottom right color bar. */
-    },
-    text:
-    {
-        LEFT_1              : 0,
-        LEFT_2              : 1,
-        RIGHT_1             : 2,
-        RIGHT_2             : 3
-    }
-}
-
-const ledCmd =
-{
-    SOLID                   : 1,    /*!< Set LED to solid color. */
-    FLASH                   : 2,    /*!< Set LED to flash between current and previous color. */
-    PULSE                   : 3     /*!< Set LED to pulse from dim to bright. */
-}
 
 // Not currently used.
 //const SCREEN_LAYOUT_COMMAND         = 1     /*!< Set screen layout command. */
@@ -395,9 +238,9 @@ function makeFaderStrip( faderIndex, x, y )
     function bindControls( )
     {
         // Bind the fader buttons and faders.
-        faderStrip.btnTop.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.SOFTBUTTON_9 + faderIndex )
-        faderStrip.btnBottom.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.SOFTBUTTON_17 + faderIndex )
-        faderStrip.fader.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.FADER_1 + faderIndex )
+        faderStrip.btnTop.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.SOFTBUTTON_9 + faderIndex )
+        faderStrip.btnBottom.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.SOFTBUTTON_17 + faderIndex )
+        faderStrip.fader.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.FADER_1 + faderIndex )
     }
 
     // Fader callback functions.
@@ -406,7 +249,7 @@ function makeFaderStrip( faderIndex, x, y )
      * Callback when a fader title changes.
      */
     faderStrip.fader.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle ) {
-        lcdApi.displayText( context, SMALL_LCD_OFFSET + faderIndex, knobLayout.text.TEXT_4, objectTitle )
+        lcdApi.displayText( context, SMALL_LCD_OFFSET + faderIndex, define.lcdId.knob.text.TEXT_4, objectTitle )
     }
 
     /**
@@ -429,15 +272,15 @@ function makeFaderStrip( faderIndex, x, y )
             lcdApi.displayColorRGB( context, SMALL_LCD_OFFSET + faderIndex, rowIdx, red,
                                  green, blue )
         }
-        ledApi.colorRGB( context, ledRGBCC.FADER_1 + faderIndex, trackRed[ faderIndex ] * .8,
+        ledApi.colorRGB( context, define.ledId.id.FADER_1 + faderIndex, trackRed[ faderIndex ] * .8,
                       trackGreen[ faderIndex ] * .8, trackBlue[ faderIndex ] * .8 )
 
         /**
          * Update color of the top and bottom bars.
          */
-        updateRow( knobLayout.color.TOP_BAR, trackRed[faderIndex] , trackGreen[faderIndex] ,
+        updateRow( define.lcdId.knob.color.TOP_BAR, trackRed[ faderIndex ], trackGreen[ faderIndex ],
                    trackBlue[ faderIndex ] )
-        updateRow( knobLayout.color.BOTTOM_BAR, trackRed[ faderIndex ], trackGreen[ faderIndex ],
+        updateRow( define.lcdId.knob.color.BOTTOM_BAR, trackRed[ faderIndex ], trackGreen[ faderIndex ],
                    trackBlue[ faderIndex ] )
     }
 
@@ -452,12 +295,12 @@ function makeFaderStrip( faderIndex, x, y )
     {
         if( value )
         {
-            ledApi.colorRGB( context, controlCC.SOFTBUTTON_9 + faderIndex, trackRed[ faderIndex ],
+            ledApi.colorRGB( context, define.ledId.id.SOFTBUTTON_9 + faderIndex, trackRed[ faderIndex ],
                           trackGreen[ faderIndex ], trackBlue[ faderIndex ] )
         }
         else
         {
-            ledApi.colorRGB( context, controlCC.SOFTBUTTON_9 + faderIndex, 20, 20, 20 )
+            ledApi.colorRGB( context, define.ledId.id.SOFTBUTTON_9 + faderIndex, 20, 20, 20 )
         }
     }
 
@@ -471,12 +314,12 @@ function makeFaderStrip( faderIndex, x, y )
     {
         if( value )
         {
-            ledApi.colorRGB( context, ledRGBCC.SOFTBUTTON_17 + faderIndex, trackRed[ faderIndex ], trackGreen[ faderIndex ],
+            ledApi.colorRGB( context, define.ledId.id.SOFTBUTTON_17 + faderIndex, trackRed[ faderIndex ], trackGreen[ faderIndex ],
                           trackBlue[ faderIndex ] )
         }
         else
         {
-            ledApi.colorRGB( context, ledRGBCC.SOFTBUTTON_17 + faderIndex, 20, 20, 20 )
+            ledApi.colorRGB( context, define.ledId.id.SOFTBUTTON_17 + faderIndex, 20, 20, 20 )
         }
     }
 
@@ -529,10 +372,10 @@ function makeKnobStrip( knobIndex, x, y )
         /* Control bindings to knob assembly knobs, buttons, and pads to MIDI CC messages.
          * The pads should probably be isolated into their own subpage but they're here for now.
          */
-        knobStrip.knob.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.ROTARY_KNOB_1 + knobIndex ).setTypeRelativeTwosComplement( )
-        knobStrip.button.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.SOFTBUTTON_1 + knobIndex )
-        knobStrip.pad1.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToNote( INCONTROLMIDICHANNEL, controlCC.PAD_1 + knobIndex )
-        knobStrip.pad2.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToNote( INCONTROLMIDICHANNEL, controlCC.PAD_9 + knobIndex )
+        knobStrip.knob.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.ROTARY_KNOB_1 + knobIndex ).setTypeRelativeTwosComplement( )
+        knobStrip.button.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.SOFTBUTTON_1 + knobIndex )
+        knobStrip.pad1.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToNote( INCONTROLMIDICHANNEL, define.ccId.id.PAD_1 + knobIndex )
+        knobStrip.pad2.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToNote( INCONTROLMIDICHANNEL, define.ccId.id.PAD_9 + knobIndex )
     }
 
     /**
@@ -541,14 +384,14 @@ function makeKnobStrip( knobIndex, x, y )
      */
     knobStrip.knob.mSurfaceValue.mOnProcessValueChange = function( context, newValue )
     {
-        lcdApi.displayValue( context, SMALL_LCD_OFFSET + knobIndex, knobLayout.value.KNOB_VALUE, newValue * 127 )
+        lcdApi.displayValue( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.value.KNOB_VALUE, newValue * 127 )
     }
     /**
      * Callback for the display when the knob display value changes.
      */
     knobStrip.knob.mSurfaceValue.mOnDisplayValueChange = function( context, value, units )
     {
-        lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, knobLayout.text.TEXT_3, value )
+        lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.text.TEXT_3, value )
     }
     /**
      * Callback for the the display when the knob display title
@@ -556,8 +399,8 @@ function makeKnobStrip( knobIndex, x, y )
      */
     knobStrip.knob.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
     {
-        lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, knobLayout.text.TEXT_2, valueTitle )
-        lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, knobLayout.text.TEXT_1, objectTitle )
+        lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.text.TEXT_2, valueTitle )
+        lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.text.TEXT_1, objectTitle )
 
         var msg = lcdApi.notification( context, 'Version', 'v0.0.4' )
     }
@@ -570,14 +413,14 @@ function makeKnobStrip( knobIndex, x, y )
 
         if( newValue )
         {
-            ledApi.colorRGB( context, ledRGBCC.SOFTBUTTON_1 + knobIndex, trackRed[ knobIndex ],
+            ledApi.colorRGB( context, define.ledId.id.SOFTBUTTON_1 + knobIndex, trackRed[ knobIndex ],
                           trackGreen[ knobIndex ], trackBlue[ knobIndex ] )
-            lcdApi.displayValue( context, SMALL_LCD_OFFSET + knobIndex, knobLayout.value.SELECTED, 1 )
+            lcdApi.displayValue( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.value.SELECTED, 1 )
         }
         else
         {
-            ledApi.colorRGB( context, ledRGBCC.SOFTBUTTON_1 + knobIndex, 20, 20, 20 )
-            lcdApi.displayValue( context, SMALL_LCD_OFFSET + knobIndex, knobLayout.value.SELECTED, 0 )
+            ledApi.colorRGB( context, define.ledId.id.SOFTBUTTON_1 + knobIndex, 20, 20, 20 )
+            lcdApi.displayValue( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.value.SELECTED, 0 )
         }
     }
 
@@ -628,12 +471,12 @@ function makeTransport( x, y )
     function bindControls( )
     {
         // Bind MIDI CC to the physical buttons.
-        transport.btnRewind.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.REWIND )
-        transport.btnForward.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.FAST_FORWARD )
-        transport.btnStop.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.STOP_BUTTON )
-        transport.btnStart.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.PLAY_BUTTON )
-        transport.btnCycle.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.LOOP_BUTTON )
-        transport.btnRecord.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.RECORD_BUTTON )
+        transport.btnRewind.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.REWIND )
+        transport.btnForward.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.FAST_FORWARD )
+        transport.btnStop.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.STOP_BUTTON )
+        transport.btnStart.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.PLAY_BUTTON )
+        transport.btnCycle.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.LOOP_BUTTON )
+        transport.btnRecord.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.RECORD_BUTTON )
     }
 
     createControls( )
@@ -727,21 +570,21 @@ function makeSurfaceElements( )
     {
 
         // Bind the navigation controls.
-        surfaceElements.btn_prevKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.SCREEN_UP_BUTTON )
-        surfaceElements.btn_nextKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.SCREEN_DOWN_BUTTON )
-        surfaceElements.btn_prevDriverPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.PADS_UP_BUTTON )
-        surfaceElements.btn_nextDriverPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.PADS_DOWN_BUTTON )
-        surfaceElements.btn_prevFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.RIGHT_SOFTBUTTONS_UP )
-        surfaceElements.btn_nextFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.RIGHT_SOFTBUTTONS_DOWN )
+        surfaceElements.btn_prevKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.SCREEN_UP_BUTTON )
+        surfaceElements.btn_nextKnobSubPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.SCREEN_DOWN_BUTTON )
+        surfaceElements.btn_prevDriverPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.PADS_UP_BUTTON )
+        surfaceElements.btn_nextDriverPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.PADS_DOWN_BUTTON )
+        surfaceElements.btn_prevFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.RIGHT_SOFTBUTTONS_UP )
+        surfaceElements.btn_nextFaderSubPage.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.RIGHT_SOFTBUTTONS_DOWN )
         // Bind controls common to all pages.
-        surfaceElements.btn_options.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.OPTIONS_BUTTON )
-        surfaceElements.btn_grid.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.GRID_BUTTON )
-        surfaceElements.btn_clear.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.CLEAR_BUTTON )
-        surfaceElements.btn_duplicate.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.DUPLICATE_BUTTON )
-        surfaceElements.btn_padLeft.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.SCENE_LAUNCH_TOP )
-        surfaceElements.btn_padRight.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.SCENE_LAUNCH_BOTTOM )
-        surfaceElements.btn_prevTrack.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.TRACK_LEFT )
-        surfaceElements.btn_nextTrack.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, controlCC.TRACK_RIGHT )
+        surfaceElements.btn_options.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.OPTIONS_BUTTON )
+        surfaceElements.btn_grid.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.GRID_BUTTON )
+        surfaceElements.btn_clear.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.CLEAR_BUTTON )
+        surfaceElements.btn_duplicate.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.DUPLICATE_BUTTON )
+        surfaceElements.btn_padLeft.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.SCENE_LAUNCH_TOP )
+        surfaceElements.btn_padRight.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.SCENE_LAUNCH_BOTTOM )
+        surfaceElements.btn_prevTrack.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.TRACK_LEFT )
+        surfaceElements.btn_nextTrack.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( INCONTROLMIDICHANNEL, define.ccId.id.TRACK_RIGHT )
 
         /**
          * Transport button value change callback.
@@ -762,12 +605,12 @@ function makeSurfaceElements( )
         }
 
         // Bind the buttons values to control transport.
-        makeTransportDisplayFeedback( surfaceElements.transport.btnRewind, controlCC.REWIND, 9 )
-        makeTransportDisplayFeedback( surfaceElements.transport.btnForward, controlCC.FAST_FORWARD, 9 )
-        makeTransportDisplayFeedback( surfaceElements.transport.btnStop, controlCC.STOP_BUTTON, 119 )
-        makeTransportDisplayFeedback( surfaceElements.transport.btnStart, controlCC.PLAY_BUTTON, 22 )
-        makeTransportDisplayFeedback( surfaceElements.transport.btnCycle, controlCC.LOOP_BUTTON, 54 )
-        makeTransportDisplayFeedback( surfaceElements.transport.btnRecord, controlCC.RECORD_BUTTON, 5 )
+        makeTransportDisplayFeedback( surfaceElements.transport.btnRewind, define.ccId.id.REWIND, 9 )
+        makeTransportDisplayFeedback( surfaceElements.transport.btnForward, define.ccId.id.FAST_FORWARD, 9 )
+        makeTransportDisplayFeedback( surfaceElements.transport.btnStop, define.ccId.id.STOP_BUTTON, 119 )
+        makeTransportDisplayFeedback( surfaceElements.transport.btnStart, define.ccId.id.PLAY_BUTTON, 22 )
+        makeTransportDisplayFeedback( surfaceElements.transport.btnCycle, define.ccId.id.LOOP_BUTTON, 54 )
+        makeTransportDisplayFeedback( surfaceElements.transport.btnRecord, define.ccId.id.RECORD_BUTTON, 5 )
     }
 
 
@@ -1064,8 +907,8 @@ pageMixer.mOnActivate = function( context )
      * here. They should be moved to a subpage and
      * handled in the subpage OnActive( ) callback.
      */
-    lcdApi.displayText( context, CENTER_LCD_OFFSET, centerLayout.text.RIGHT_1, 'Mute' )
-    lcdApi.displayText( context, CENTER_LCD_OFFSET, centerLayout.text.RIGHT_2, 'Solo' )
+    lcdApi.displayText( context, CENTER_LCD_OFFSET, define.lcdId.center.text.RIGHT_1, 'Mute' )
+    lcdApi.displayText( context, CENTER_LCD_OFFSET, define.lcdId.center.text.RIGHT_2, 'Solo' )
 }
 
 /**
