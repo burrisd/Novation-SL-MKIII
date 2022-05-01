@@ -887,7 +887,7 @@ function makePageParts( )
 var pageMixer         = makePageMixer( )
 var pageSelectedTrack = makePageSelectedTrack( )
 var pageParts         = makePageParts( )
-var testPage          = new mydriver.page.makePage( deviceDriver, 'Test Page' )
+var testPage          = new mydriver.page.makePage( deviceDriver, 'Test Page', 2, 8 )
 
 
 /**
