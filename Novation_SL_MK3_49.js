@@ -741,6 +741,7 @@ function makeSubPage( subPageArea, name )
 
         activeDevice.setState( 'Current SubPage', name )
         console.log( 'Subpage ' + name )
+        lcdApi.displayText( activeDevice, CENTER_LCD_OFFSET, define.lcdId.center.text.LEFT_1, name )
     }
     return subPage
 }
@@ -870,10 +871,10 @@ function makePageParts( )
     // Create the subppages for each of the eight parts.
     for( var subPageIdx = 0; subPageIdx < numParts; ++subPageIdx )
     {
-        var nameSubPage = 'Knob Page ' + (subPageIdx + 1).toString( )
+        var nameSubPage = 'Knob ' + (subPageIdx + 1).toString( )
         var subPagePart = makeSubPage( knobSubPageArea, nameSubPage )
 
-        nameSubPage = 'Fader Page' + (subPageIdx + 1).toString( )
+        nameSubPage = 'Fader ' + (subPageIdx + 1).toString( )
         subPagePart = makeSubPage( faderSubpageArea, nameSubPage )
     }
 
