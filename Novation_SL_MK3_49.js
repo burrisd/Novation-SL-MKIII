@@ -21,13 +21,6 @@
     ##########################################################################
  */
 
-/** The helper functions contruct the MIDI messages required
- *  to update the displays and LEDs based on values passed in to
- *  the functions.
- */
-var helper          = require( './helper' );
-var define          = require( './constants' )
-
 /*
  *  NOTE:   When controlling LEDs, it is important to understand
  *          which of the value below to use. For single-byte color
@@ -61,6 +54,14 @@ const CENTER_LCD_OFFSET             = 8     /*!< Center screen index. */
 // Get the MIDI Remote API interfaces. (Required!)
 var midiremote_api = require( 'midiremote_api_v1' )
 
+/** The helper functions construct the MIDI messages required
+ *  to update the displays and LEDs based on values passed in to
+ *  the functions.
+ */
+var helper   = require( './helper' );
+var define   = require( './constants' )  // Constants defining surface controls.
+var mydriver = require( './driverObjects.js' )
+
 // Create the device driver object.
 var deviceDriver   = midiremote_api.makeDeviceDriver( 'Novation', 'SL MK3 49', 'David Burris - Burris Audio' )
 
@@ -82,7 +83,7 @@ if( DEBUG_MODE == 1 )
     deviceDriver.makeDetectionUnit( ).detectPortPair( midiInput, midiOutput )
         .expectInputNameEquals( 'To-Cubase' )
         .expectOutputNameEquals( 'From-Cubase' )
-        .expectSysexIdentityResponse( /*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000' )
+        .expectSysexIdentityResponse( '002029', '0101', '0000' )
 }
 else
 {
@@ -94,7 +95,7 @@ else
     deviceDriver.makeDetectionUnit( ).detectPortPair( midiInput, midiOutput )
         .expectInputNameEquals( 'MIDIIN2 (Novation SL MkIII)' )
         .expectOutputNameEquals( 'MIDIOUT2 (Novation SL MkIII)' )
-        .expectSysexIdentityResponse( /*vendor id (1 or 3 bytes, here: 3 bytes)*/'002029', /*device family*/'0101', /*model number*/'0000' )
+        .expectSysexIdentityResponse( '002029', '0101', '0000' )
 }
 
 // Define some global data for the application.
@@ -591,7 +592,7 @@ function makeSurfaceElements( )
          *
          * @param button    Button index.
          * @param ledID     LED index.
-         * @param colorID   Color index.
+         * @param colorId   Color index.
          */
         function makeTransportDisplayFeedback( button, ledID, colorId )
         {
@@ -886,6 +887,7 @@ function makePageParts( )
 var pageMixer         = makePageMixer( )
 var pageSelectedTrack = makePageSelectedTrack( )
 var pageParts         = makePageParts( )
+var testPage          = new mydriver.page.makePage( deviceDriver, 'Test Page' )
 
 
 /**
