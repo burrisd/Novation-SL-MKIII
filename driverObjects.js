@@ -27,7 +27,7 @@
  */
 function DriverPage( deviceDriver, pageName, numSubpageAreas, numSubPages )
 {
-    pageApi             = deviceDriver.mMapping.makePage( pageName );
+    var pageApi         = deviceDriver.mMapping.makePage( pageName );
 
     this.name           = pageName;
     this.subpageArea    = [ ];
@@ -39,7 +39,7 @@ function DriverPage( deviceDriver, pageName, numSubpageAreas, numSubPages )
      */
     function SubPageArea( subpageAreaName )
     {
-        subPageAreaApi      = pageApi.makeSubPageArea( subpageAreaName );
+        var subPageAreaApi  = pageApi.makeSubPageArea( subpageAreaName );
         this.subPage        = [ ];
 
         /**
@@ -49,7 +49,7 @@ function DriverPage( deviceDriver, pageName, numSubpageAreas, numSubPages )
          */
         function Subpage( subPageName )
         {
-            subPageApi      = subPageAreaApi.makeSubPage( subPageName );
+            var subPageApi  = subPageAreaApi.makeSubPage( subPageName );
 
             /**
              * Callback for subpage activated.
@@ -63,7 +63,6 @@ function DriverPage( deviceDriver, pageName, numSubpageAreas, numSubPages )
              */
             subPageApi.mOnDeactivate = function( context )
             {
-                console.log( 'Subpage ' + subPageName )
             }
         }
 
@@ -94,10 +93,89 @@ function DriverPage( deviceDriver, pageName, numSubpageAreas, numSubPages )
     }
 }
 
+function Button( deviceDriver, x, y, w, h )
+{
+    this.buttonApi = deviceDriver.mSurface.makeButton( x, y, w, h );
+    //knobs.push( this );
+}
+
+function Knob( deviceDriver, x, y, w, h )
+{
+    this.knobApi = deviceDriver.mSurface.makeKnob( x, y, w, h )
+    //knobs.push( this );
+
+}
+
+function Fader( deviceDriver, x, y, w, h )
+{
+    this.faderApi = deviceDriver.mSurface.makeFader( x, y, w, h )
+    //faders.push( this );
+
+    this.faderApi.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
+    {
+    }
+    this.faderApi.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
+    {
+    }
+    this.faderApi.mSurfaceValue.mOnDisplayValueChange = function( context, value,  units )
+    {
+    }
+    this.faderApi.mSurfaceValue.mOnProcessValueChange = function( context, value )
+    {
+    }
+}
+
+function Label( deviceDriver, x, y, w, h )
+{
+    this.labelApi = deviceDriver.mSurface.makeLabelField( x, y, w, h )
+
+}
+
+
+function TriggerPad( deviceDriver, x, y, w, h ) {
+    this.triggerPadApi = deviceDriver.mSurface.makeTriggerPad( x, y, w, h )
+
+}
+
+function PianoKeys( deviceDriver, x, y, w, h, first, last )
+{
+    this.pianoKeysApi = deviceDriver.mSurface.makePianoKeys( x, y, w, h, first, last )
+}
+
+function BlindPanel( deviceDriver, x, y, w, h )
+{
+    thisBlindPanelApi = deviceDriver.mSurface.makeBlindPanel( x, y, w, h )
+}
+
+
+function PitchWheel( deviceDriver, x, y, w, h )
+{
+    thisPitchWheelApi = deviceDriver.mSurface.makePitchBend( x, y, w, h )
+}
+
+
+function ModWheel( deviceDriver, x, y, w, h )
+{
+    thisModWheelApi = deviceDriver.mSurface.makeModWheel( x, y, w, h )
+}
+
+
 module.exports =
 {
     page:
     {
-        makePage:   DriverPage
+        makePage:       DriverPage
+    },
+    surface:
+    {
+        makeModWheel:   ModWheel,
+        makePitchWheel: PitchWheel,
+        makeBlindPanel: BlindPanel,
+        makePianoKeys:  PianoKeys,
+        makeTriggerPad: TriggerPad,
+        makeLabel:      Label,
+        makeFader:      Fader,
+        makeKnob:       Knob,
+        makeButton:     Button,
     }
 }
