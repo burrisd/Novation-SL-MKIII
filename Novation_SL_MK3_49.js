@@ -320,16 +320,48 @@ function makeSurfaceElements( )
     return ui
 }
 
+function makeSurfaceMidiBindings( ui )
+{
+    // Bind the controls to MIDI CC.
+    ui.btn_prevDriverPage.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PADS_UP_BUTTON );
+    ui.btn_nextDriverPage.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PADS_DOWN_BUTTON );
+    ui.btn_prevKnobSubPage.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SCREEN_UP_BUTTON );
+    ui.btn_nextKnobSubPage.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SCREEN_DOWN_BUTTON )
+    ui.btn_prevFaderSubPage.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.RIGHT_SOFTBUTTONS_UP );
+    ui.btn_nextFaderSubPage.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.RIGHT_SOFTBUTTONS_DOWN );
+
+    ui.btn_options.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.OPTIONS_BUTTON );
+    ui.btn_grid.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.GRID_BUTTON );
+    ui.btn_clear.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.CLEAR_BUTTON );
+    ui.btn_duplicate.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.DUPLICATE_BUTTON );
+    ui.btn_padLeft.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SCENE_LAUNCH_TOP );
+    ui.btn_padRight.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SCENE_LAUNCH_BOTTOM );
+    ui.btn_prevTrack.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.TRACK_LEFT );
+    ui.btn_nextTrack.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.TRACK_RIGHT );
+
+    for( var i = 0; i  < ui.numStrips; ++i )
+    {
+        ui.faderGroup[ i ].btnTop.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SOFTBUTTON_9 + i );
+        ui.faderGroup[ i ].btnBottom.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SOFTBUTTON_17 + i );
+        ui.faderGroup[ i ].fader.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.FADER_1 + i );
+        ui.knobGroup[ i ].knob.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.ROTARY_KNOB_1 + i );
+        ui.knobGroup[ i ].button.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SOFTBUTTON_1 + i )
+        ui.knobGroup[ i ].pad1.bindNote( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PAD_1 + i )
+        ui.knobGroup[ i ].pad2.bindNote( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PAD_9 + i )
+    }
+
+    ui.transport.btnRewind.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.REWIND )
+    ui.transport.btnForward.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.FAST_FORWARD )
+    ui.transport.btnStop.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.STOP_BUTTON )
+    ui.transport.btnStart.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PLAY_BUTTON )
+    ui.transport.btnCycle.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.LOOP_BUTTON )
+    ui.transport.btnRecord.bindCC( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.RECORD_BUTTON )
+
+}
+
 
 var ui = makeSurfaceElements( );
-
-// Bind the controls to MIDI CC.
-ui.btn_prevDriverPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PADS_UP_BUTTON );
-ui.btn_nextDriverPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PADS_DOWN_BUTTON );
-ui.btn_prevKnobSubPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SCREEN_UP_BUTTON );
-ui.btn_nextKnobSubPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SCREEN_DOWN_BUTTON )
-ui.btn_prevFaderSubPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.RIGHT_SOFTBUTTONS_UP );
-ui.btn_nextFaderSubPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.RIGHT_SOFTBUTTONS_DOWN );
+makeSurfaceMidiBindings( ui );
 
 // Create the driver pages. Each created page must bind to the navigation!
 var MixerPage   = new mydriver.makePage( slDriver, 'Mixer Page' );

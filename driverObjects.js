@@ -140,7 +140,7 @@ function Button( deviceDriver, x, y, w, h )
 
     //knobs.push( this );
 
-    this.bind = function( midiInput, channel, cc )
+    this.bindCC = function( midiInput, channel, cc )
     {
         this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc );
     }
@@ -162,6 +162,11 @@ function Button( deviceDriver, x, y, w, h )
 function Knob( deviceDriver, x, y, w, h )
 {
     this.api = deviceDriver.api.mSurface.makeKnob( x, y, w, h )
+
+    this.bindCC = function( midiInput, channel, cc )
+    {
+        this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc ).setTypeRelativeTwosComplement( );
+    }
 }
 
 
@@ -178,6 +183,10 @@ function Fader( deviceDriver, x, y, w, h )
 {
     this.api = deviceDriver.api.mSurface.makeFader( x, y, w, h )
 
+    this.bindCC = function( midiInput, channel, cc )
+    {
+        this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc );
+    }
     this.setTypeVertical = function( )
     {
         this.api.setTypeVertical( );
@@ -213,6 +222,10 @@ function Label( deviceDriver, x, y, w, h )
 function TriggerPad( deviceDriver, x, y, w, h ) {
     this.api = deviceDriver.api.mSurface.makeTriggerPad( x, y, w, h )
 
+    this.bindNote = function( midiInput, channel, note )
+    {
+        this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToNote( channel, note );
+    }
 }
 
 
@@ -262,6 +275,11 @@ function PitchWheel( deviceDriver, x, y, w, h )
 
 {
     this.api = deviceDriver.api.mSurface.makePitchBend( x, y, w, h )
+
+    this.bindPitch = function( channel )
+    {
+        this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToPitchBend( channel );
+    }
 }
 
 
@@ -278,6 +296,11 @@ function PitchWheel( deviceDriver, x, y, w, h )
 function ModWheel( deviceDriver, x, y, w, h )
 {
     this.api = deviceDriver.api.mSurface.makeModWheel( x, y, w, h )
+
+    this.bindCC = function( channel, cc )
+    {
+        this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc );
+    }
 }
 
 
