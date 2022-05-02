@@ -66,12 +66,6 @@ var mydriver = require( './driverObjects.js' )
 // Create the device driver object.
 var slDriver        = new mydriver.makeDriver( 'Novation', 'SL MK3 49', 'David Burris - Burris Audio' )
 
-var deviceDriver = slDriver.driverApi;
-
-// Create connections to the MIDI input and output.
-var midiInput      = slDriver.midiInput;
-var midiOutput     = slDriver.midiOutput;
-
 // Define some global data for the application.
 var trackRed   = [ ]
 var trackGreen = [ ]
@@ -99,7 +93,7 @@ function lcdActions( )
     this.notification = function( context, line1, line2 )
     {
         msg = helper.sysex.setNotificationText( line1, line2 )
-        midiOutput.sendMidi( context, msg )
+        slDriver.midiOutput.sendMidi( context, msg )
     }
     /**
      * Update an LCD text item.
@@ -107,7 +101,7 @@ function lcdActions( )
     this.displayText = function( context, displayCol, displayRow, text )
     {
         msg = helper.sysex.displaySetTextOfColumn( displayCol, displayRow, text )
-        midiOutput.sendMidi( context, msg )
+        slDriver.midiOutput.sendMidi( context, msg )
     }
     /**
      * Update display item color using RGB.
@@ -115,7 +109,7 @@ function lcdActions( )
     this.displayColorRGB = function( context, displayCol, displayRow, red, green, blue )
     {
         msg = helper.sysex.setDisplayColorOfColumn( displayCol, displayRow, red, green, blue )
-        midiOutput.sendMidi( context, msg )
+        slDriver.midiOutput.sendMidi( context, msg )
     }
     /**
      * Update display item value text.
@@ -123,7 +117,7 @@ function lcdActions( )
     this.displayValue = function( context, displayCol, displayRow, value )
     {
         msg = helper.sysex.setDisplayValueOfColumn( displayCol, displayRow, value )
-        midiOutput.sendMidi( context, msg )
+        slDriver.midiOutput.sendMidi( context, msg )
     }
 }
 
@@ -141,7 +135,7 @@ function ledActions( )
     this.color = function( context, ledId, colorId )
     {
         msg = helper.note.setLEDColor( ledId, colorId )
-        midiOutput.sendMidi( context, msg )
+        slDriver.midiOutput.sendMidi( context, msg )
     }
     /**
      * Set LED color by RGB.
@@ -149,7 +143,7 @@ function ledActions( )
     this.colorRGB = function( context, ledId, red, green, blue )
     {
         msg = helper.sysex.setLEDColorRGB( ledId, red, green, blue )
-        midiOutput.sendMidi( context, msg )
+        slDriver.midiOutput.sendMidi( context, msg )
     }
     /**
      * Flash LED between this and previous color Ids.
@@ -157,7 +151,7 @@ function ledActions( )
     this.flashRGB = function( context, ledId, red, green, blue )
     {
         msg = helper.sysex.setLEDFlashRGB( ledId, red, green, blue )
-        midiOutput.sendMidi( context, msg )
+        slDriver.midiOutput.sendMidi( context, msg )
     }
     /**
      * Flash LED between two color Ids.
@@ -165,7 +159,7 @@ function ledActions( )
     this.pulseRGB = function( context, ledId, red, green, blue )
     {
         msg = helper.sysex.setLEDPulseRGB( ledId, red, green, blue )
-        midiOutput.sendMidi( context, msg )
+        slDriver.midiOutput.sendMidi( context, msg )
     }
 }
 
@@ -191,17 +185,17 @@ function makeTransport( x, y ) {
 
     // Create the buttons.
 
-    transport.btnRewind = new mydriver.makeButton( slDriver.driverApi, currX, y, w, h );
+    transport.btnRewind = new mydriver.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnForward = new mydriver.makeButton( slDriver.driverApi, currX, y, w, h );
+    transport.btnForward = new mydriver.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnStop = new mydriver.makeButton( slDriver.driverApi, currX, y, w, h );
+    transport.btnStop = new mydriver.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnStart = new mydriver.makeButton( slDriver.driverApi, currX, y, w, h );
+    transport.btnStart = new mydriver.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnCycle = new mydriver.makeButton( slDriver.driverApi, currX, y, w, h );
+    transport.btnCycle = new mydriver.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnRecord = new mydriver.makeButton( slDriver.driverApi, currX, y, w, h );
+    transport.btnRecord = new mydriver.makeButton( slDriver, currX, y, w, h );
     currX += w;
 
     return transport
@@ -224,10 +218,10 @@ function makeFaderStrip( faderIndex, x, y ) {
     /**
      * Create the surface controls.
      */
-    faderStrip.btnTop = new mydriver.makeButton( slDriver.driverApi, x + 2 * faderIndex, y, 2, 1 )
-    faderStrip.btnBottom = new mydriver.makeButton( slDriver.driverApi, x + 2 * faderIndex, y + 1, 2, 1 )
+    faderStrip.btnTop = new mydriver.makeButton( slDriver, x + 2 * faderIndex, y, 2, 1 )
+    faderStrip.btnBottom = new mydriver.makeButton( slDriver, x + 2 * faderIndex, y + 1, 2, 1 )
 
-    faderStrip.fader = new mydriver.makeFader( slDriver.driverApi, x + 2 * faderIndex, y + 3, 2, 6 )
+    faderStrip.fader = new mydriver.makeFader( slDriver, x + 2 * faderIndex, y + 3, 2, 6 )
     faderStrip.fader.setTypeVertical( )
 
     return faderStrip
@@ -256,10 +250,10 @@ function makeKnobStrip( knobIndex, x, y ) {
     /**
      * Create the controls.
      */
-    knobStrip.knob      = new mydriver.makeKnob( slDriver.driverApi, x + 2 * knobIndex, y, 2, 2 )
-    knobStrip.button    = new mydriver.makeButton( slDriver.driverApi, x + 2 * knobIndex, y + 4, 2, 1 )
-    knobStrip.pad1      = new mydriver.makeTriggerPad( slDriver.driverApi, x + 2 * knobIndex, y + 5, 2, 2 )
-    knobStrip.pad2      = new mydriver.makeTriggerPad( slDriver.driverApi, x + 2 * knobIndex, y + 7, 2, 2 )
+    knobStrip.knob      = new mydriver.makeKnob( slDriver, x + 2 * knobIndex, y, 2, 2 )
+    knobStrip.button    = new mydriver.makeButton( slDriver, x + 2 * knobIndex, y + 4, 2, 1 )
+    knobStrip.pad1      = new mydriver.makeTriggerPad( slDriver, x + 2 * knobIndex, y + 5, 2, 2 )
+    knobStrip.pad2      = new mydriver.makeTriggerPad( slDriver, x + 2 * knobIndex, y + 7, 2, 2 )
 
     return knobStrip
 }
@@ -279,33 +273,33 @@ function makeSurfaceElements( )
 
     ui.numStrips = 8;
 
-    ui.btn_prevDriverPage = new mydriver.makeButton( slDriver.driverApi, 4, 5, 2, 2 );
-    ui.btn_nextDriverPage = new mydriver.makeButton( slDriver.driverApi, 4, 7, 2, 2 );
+    ui.btn_prevDriverPage = new mydriver.makeButton( slDriver, 4, 5, 2, 2 );
+    ui.btn_nextDriverPage = new mydriver.makeButton( slDriver, 4, 7, 2, 2 );
 
     ui.btn_nextDriverPage.setShapeCircle( );
     ui.btn_prevDriverPage.setShapeCircle( );
 
-    ui.btn_options      = new mydriver.makeButton( slDriver.driverApi, 22, 4, 2, 1 );
-    ui.btn_grid         = new mydriver.makeButton( slDriver.driverApi, 4, 4, 2, 1 );
-    ui.btn_clear        = new mydriver.makeButton( slDriver.driverApi, 0, 6, 2, 1 );
-    ui.btn_duplicate    = new mydriver.makeButton( slDriver.driverApi, 0, 5, 2, 1  );
-    ui.btn_padLeft      = new mydriver.makeButton( slDriver.driverApi, 22, 5, 2, 2 );
-    ui.btn_padRight     = new mydriver.makeButton( slDriver.driverApi, 22, 7, 2, 2 );
+    ui.btn_options      = new mydriver.makeButton( slDriver, 22, 4, 2, 1 );
+    ui.btn_grid         = new mydriver.makeButton( slDriver, 4, 4, 2, 1 );
+    ui.btn_clear        = new mydriver.makeButton( slDriver, 0, 6, 2, 1 );
+    ui.btn_duplicate    = new mydriver.makeButton( slDriver, 0, 5, 2, 1  );
+    ui.btn_padLeft      = new mydriver.makeButton( slDriver, 22, 5, 2, 2 );
+    ui.btn_padRight     = new mydriver.makeButton( slDriver, 22, 7, 2, 2 );
 
     ui.btn_padLeft.setShapeCircle( );
     ui.btn_padRight.setShapeCircle( );
 
     // Create left.right arrow buttons.
-    ui.btn_prevTrack = new mydriver.makeButton( slDriver.driverApi, 0, 7, 2, 1 );
-    ui.btn_nextTrack = new mydriver.makeButton( slDriver.driverApi, 2, 7, 2, 1 );
+    ui.btn_prevTrack = new mydriver.makeButton( slDriver, 0, 7, 2, 1 );
+    ui.btn_nextTrack = new mydriver.makeButton( slDriver, 2, 7, 2, 1 );
 
-    ui.btn_prevKnobSubPage = new mydriver.makeButton( slDriver.driverApi, 4, 2, 2, 1 );
-    ui.btn_nextKnobSubPage = new mydriver.makeButton( slDriver.driverApi, 4, 3, 2, 1 );
+    ui.btn_prevKnobSubPage = new mydriver.makeButton( slDriver, 4, 2, 2, 1 );
+    ui.btn_nextKnobSubPage = new mydriver.makeButton( slDriver, 4, 3, 2, 1 );
 
-    ui.btn_prevFaderSubPage = new mydriver.makeButton( slDriver.driverApi, 40, 0, 2, 1 );
-    ui.btn_nextFaderSubPage = new mydriver.makeButton( slDriver.driverApi, 40, 1, 2, 1 );
+    ui.btn_prevFaderSubPage = new mydriver.makeButton( slDriver, 40, 0, 2, 1 );
+    ui.btn_nextFaderSubPage = new mydriver.makeButton( slDriver, 40, 1, 2, 1 );
 
-    ui.deviceLabel = new mydriver.makeLabel( slDriver.driverApi, 45, 0, 7, 2 );
+    ui.deviceLabel = new mydriver.makeLabel( slDriver, 45, 0, 7, 2 );
 
     for (var i = 0; i < ui.numStrips; ++i)
     {
@@ -313,15 +307,15 @@ function makeSurfaceElements( )
         ui.knobGroup[ i ] = makeKnobStrip( i, 6, 0 );
     }
 
-    ui.pianoKeys    = new mydriver.makePianoKeys( slDriver.driverApi, 5, 10, 48, 7, 0, NUM_PIANO_KEYS );
+    ui.pianoKeys    = new mydriver.makePianoKeys( slDriver, 5, 10, 48, 7, 0, NUM_PIANO_KEYS );
 
-    ui.knobgroupBlindPanel  = new mydriver.makeBlindPanel( slDriver.driverApi, 6, 0 + 2, ui.numStrips * 2, 2 );
-    ui.knobgroupBlindPanel2 = new mydriver.makeBlindPanel( slDriver.driverApi, 6 + 16, 0 + 2, 2, 2 );
+    ui.knobgroupBlindPanel  = new mydriver.makeBlindPanel( slDriver, 6, 0 + 2, ui.numStrips * 2, 2 );
+    ui.knobgroupBlindPanel2 = new mydriver.makeBlindPanel( slDriver, 6 + 16, 0 + 2, 2, 2 );
 
     ui.transport    = makeTransport( 41, 7 );
 
-    ui.modWheel     = new mydriver.makeModWheel( slDriver.driverApi, 3, 11, 1, 6 );
-    ui.pitchwheel   = new mydriver.makePitchWheel( slDriver.driverApi, 1, 11, 1, 6 );
+    ui.modWheel     = new mydriver.makeModWheel( slDriver, 3, 11, 1, 6 );
+    ui.pitchwheel   = new mydriver.makePitchWheel( slDriver, 1, 11, 1, 6 );
 
     return ui
 }
@@ -334,16 +328,16 @@ ui.btn_nextDriverPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccI
 
 
 // Create the driver pages. Each created page must bind to the navigation!
-var MixerPage   = new mydriver.makePage( slDriver.driverApi, 'Mixer Page', 2, 8 );
+var MixerPage   = new mydriver.makePage( slDriver, 'Mixer Page' );
 
-MixerPage.pageApi.makeActionBinding( ui.btn_prevDriverPage.buttonApi.mSurfaceValue, slDriver.driverApi.mAction.mPrevPage );
-MixerPage.pageApi.makeActionBinding( ui.btn_nextDriverPage.buttonApi.mSurfaceValue, slDriver.driverApi.mAction.mNextPage );
+MixerPage.bind( ui.btn_prevDriverPage, slDriver.driverApi.mAction.mPrevPage );
+MixerPage.bind( ui.btn_nextDriverPage, slDriver.driverApi.mAction.mNextPage );
 
 
 
-var testPage    = new mydriver.makePage( slDriver.driverApi, 'Test Page', 2, 8 );
+var testPage    = new mydriver.makePage( slDriver, 'Test Page' );
 
-testPage.pageApi.makeActionBinding( ui.btn_prevDriverPage.buttonApi.mSurfaceValue, slDriver.driverApi.mAction.mPrevPage );
-testPage.pageApi.makeActionBinding( ui.btn_nextDriverPage.buttonApi.mSurfaceValue, slDriver.driverApi.mAction.mNextPage );
+testPage.bind( ui.btn_prevDriverPage, slDriver.driverApi.mAction.mPrevPage );
+testPage.bind( ui.btn_nextDriverPage, slDriver.driverApi.mAction.mNextPage );
 
 

@@ -17,6 +17,8 @@
 
 function    Driver( vendor, model, author )
 {
+    // Get the MIDI Remote API interfaces. (Required!)
+    var midiremote_api = require( 'midiremote_api_v1' )
     this.driverApi = midiremote_api.makeDeviceDriver( vendor, model, author );
 
     this.midiInput = this.driverApi.mPorts.makeMidiInput(  );
@@ -63,170 +65,217 @@ function    Driver( vendor, model, author )
  *
  * @param deviceDriver MIDI Remote API driver instance.
  * @param pageName          Text page name.
- * @param numSubpageAreas   Number of subpage areas to create.
- * @param numSubPages       Number of subpages per subpage area.
  */
-function DriverPage( deviceDriver, pageName, numSubpageAreas, numSubPages )
+function DriverPage( deviceDriver, pageName )
 {
-    this.pageApi        = deviceDriver.mMapping.makePage( pageName );
-    var  pageApi        = this.pageApi
-
     this.name           = pageName;
-    this.subpageArea    = [ ];
+    this.pageApi        = deviceDriver.driverApi.mMapping.makePage( this.name );
+    this.subPageArea    = [  ];
 
-    /**
-     * Create a subpage area.
-     *
-     * @param   subpageAreaName Text name for the subpage.
-     */
-    function SubPageArea( subpageAreaName )
+    this.bind = function( control, action )
     {
-        var subPageAreaApi  = pageApi.makeSubPageArea( subpageAreaName );
-        this.subPage        = [ ];
-
-        /**
-         * Create a subpage.
-         *
-         * @param   subPageName Text name for the subpage.
-         */
-        function Subpage( subPageName )
-        {
-            var subPageApi  = subPageAreaApi.makeSubPage( subPageName );
-
-            /**
-             * Callback for subpage activated.
-             */
-            subPageApi.mOnActivate = function( context )
-            {
-                console.log( 'Subpage ' + subPageName )
-            }
-            /**
-             * Callback for subpage deactivated.
-             */
-            subPageApi.mOnDeactivate = function( context )
-            {
-            }
-        }
-
-        for( var i = 0; i < numSubPages; ++i )
-        {
-            this.subPage[ i ] = new Subpage( 'Subpage ' + i.toString(  ) )
-        }
-
-    }
-
-    /**
-     * Call for page activated.
-     */
-    pageApi.mOnActivate = function( context )
-    {
-        console.log( 'Page ' +  pageName )
-    }
-    /**
-     * Call for page deactivated.
-     */
-    pageApi.mOnDeactivate = function( context )
-    {
-    }
-
-    for( var i = 0; i < numSubpageAreas; ++i )
-    {
-        this.subpageArea[ i ] = new SubPageArea( 'SubPageArea ' + i.toString( ) );
+       this.pageApi.makeActionBinding( control.api.mSurfaceValue, action );
     }
 }
 
+
+/**
+ * Create a subpage area.
+ *
+ * @param driverPage        Parent page.
+ * @param subPageAreaName   Name of the subpage area.
+ * @param numSubPages       Number of subpages to create for
+ *                          this area.
+ */
+function SubPageArea( driverPage, subPageAreaName, numSubPages )
+{
+    this.name           = subPageAreaName;
+    this.subPageAreaApi = driverPage.pageApi.makeSubPageArea( this.name );
+}
+
+/**
+ * Create the subpages for a subpage area.
+ *
+ * @param subPageArea
+ * @param subPageName
+ */
+function SubPage( subPageArea, subPageName )
+{
+    this.name = subPageName;
+    this.subPageApi = subPageArea.subPageApi.makeSubPage( this.name );
+}
+
+
+/**
+ * Construct a virtual button for the control surface.
+ *
+ * @param deviceDriver Driver object.
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ */
 function Button( deviceDriver, x, y, w, h )
 {
-    this.buttonApi = deviceDriver.mSurface.makeButton( x, y, w, h );
+    this.api = deviceDriver.driverApi.mSurface.makeButton( x, y, w, h );
 
     //knobs.push( this );
 
     this.bind = function( midiInput, channel, cc )
     {
-        this.buttonApi.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc );
+        this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc );
     }
     this.setShapeCircle = function( )
     {
-        this.buttonApi.setShapeCircle( );
+        this.api.setShapeCircle( );
     }
 }
 
+/**
+ * Construct a virtual knob for the surface.
+ *
+ * @param deviceDriver Driver object.
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ */
 function Knob( deviceDriver, x, y, w, h )
 {
-    this.knobApi = deviceDriver.mSurface.makeKnob( x, y, w, h )
-    //knobs.push( this );
-
+    this.api = deviceDriver.driverApi.mSurface.makeKnob( x, y, w, h )
 }
 
+
+/**
+ * Construct a virtual fader for the surface.
+ *
+ * @param deviceDriver
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ */
 function Fader( deviceDriver, x, y, w, h )
 {
-    this.faderApi = deviceDriver.mSurface.makeFader( x, y, w, h )
-    //faders.push( this );
+    this.api = deviceDriver.driverApi.mSurface.makeFader( x, y, w, h )
 
     this.setTypeVertical = function( )
     {
-        this.faderApi.setTypeVertical( );
-    }
-    this.faderApi.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
-    {
-    }
-    this.faderApi.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
-    {
-    }
-    this.faderApi.mSurfaceValue.mOnDisplayValueChange = function( context, value,  units )
-    {
-    }
-    this.faderApi.mSurfaceValue.mOnProcessValueChange = function( context, value )
-    {
+        this.api.setTypeVertical( );
     }
 }
 
+
+/**
+ * Construct a virtual label for the surface.
+ *
+ * @param deviceDriver
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ */
 function Label( deviceDriver, x, y, w, h )
 {
-    this.labelApi = deviceDriver.mSurface.makeLabelField( x, y, w, h )
+    this.api = deviceDriver.driverApi.mSurface.makeLabelField( x, y, w, h )
 
 }
 
 
+/**
+ * Construct a virtual trigger pad for the surface.
+ *
+ * @param deviceDriver
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ */
 function TriggerPad( deviceDriver, x, y, w, h ) {
-    this.triggerPadApi = deviceDriver.mSurface.makeTriggerPad( x, y, w, h )
+    this.api = deviceDriver.driverApi.mSurface.makeTriggerPad( x, y, w, h )
 
 }
 
+
+/**
+ * Construct a virtual piano keyboard (visual only) for the
+ * surface.
+ *
+ * @param deviceDriver
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ */
 function PianoKeys( deviceDriver, x, y, w, h, first, last )
 {
-    this.pianoKeysApi = deviceDriver.mSurface.makePianoKeys( x, y, w, h, first, last )
+    this.api = deviceDriver.driverApi.mSurface.makePianoKeys( x, y, w, h, first, last )
 }
 
+
+/**
+ * Construct a virtual blind panel (visual only) for the
+ * surface.
+ *
+ * @param deviceDriver
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ */
 function BlindPanel( deviceDriver, x, y, w, h )
 {
-    this.blindPanelApi = deviceDriver.mSurface.makeBlindPanel( x, y, w, h )
+    this.api = deviceDriver.driverApi.mSurface.makeBlindPanel( x, y, w, h )
 }
 
 
+/**
+ * Construct a virtual pitch wheel for the
+ * surface.
+ *
+ * @param deviceDriver
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ */
 function PitchWheel( deviceDriver, x, y, w, h )
+
 {
-    this.pitchWheelApi = deviceDriver.mSurface.makePitchBend( x, y, w, h )
+    this.api = deviceDriver.driverApi.mSurface.makePitchBend( x, y, w, h )
 }
 
 
+/**
+ * Construct a virtual modulation wheel for the
+ * surface.
+ *
+ * @param deviceDriver
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ */
 function ModWheel( deviceDriver, x, y, w, h )
 {
-    this.modWheelApi = deviceDriver.mSurface.makeModWheel( x, y, w, h )
+    this.api = deviceDriver.driverApi.mSurface.makeModWheel( x, y, w, h )
 }
 
 
 module.exports =
 {
-    makeDriver:     Driver,
-    makeModWheel:   ModWheel,
-    makePitchWheel: PitchWheel,
-    makeBlindPanel: BlindPanel,
-    makePianoKeys:  PianoKeys,
-    makeTriggerPad: TriggerPad,
-    makeLabel:      Label,
-    makeFader:      Fader,
-    makeKnob:       Knob,
-    makeButton:     Button,
-    makePage:       DriverPage,
+    makeDriver:         Driver,
+    makePage:           DriverPage,
+    makeSubPageArea:    SubPageArea,
+    makeSubPage:        SubPage,
+
+    makeModWheel:       ModWheel,
+    makePitchWheel:     PitchWheel,
+    makeBlindPanel:     BlindPanel,
+    makePianoKeys:      PianoKeys,
+    makeTriggerPad:     TriggerPad,
+    makeLabel:          Label,
+    makeFader:          Fader,
+    makeKnob:           Knob,
+    makeButton:         Button,
 }
