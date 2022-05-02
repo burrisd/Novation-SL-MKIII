@@ -323,21 +323,34 @@ function makeSurfaceElements( )
 
 var ui = makeSurfaceElements( );
 
+// Bind the controls to MIDI CC.
 ui.btn_prevDriverPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PADS_UP_BUTTON );
 ui.btn_nextDriverPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PADS_DOWN_BUTTON );
-
+ui.btn_prevKnobSubPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SCREEN_UP_BUTTON );
+ui.btn_nextKnobSubPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.SCREEN_DOWN_BUTTON )
+ui.btn_prevFaderSubPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.RIGHT_SOFTBUTTONS_UP );
+ui.btn_nextFaderSubPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.RIGHT_SOFTBUTTONS_DOWN );
 
 // Create the driver pages. Each created page must bind to the navigation!
 var MixerPage   = new mydriver.makePage( slDriver, 'Mixer Page' );
-
-MixerPage.bind( ui.btn_prevDriverPage, slDriver.driverApi.mAction.mPrevPage );
-MixerPage.bind( ui.btn_nextDriverPage, slDriver.driverApi.mAction.mNextPage );
-
-
-
 var testPage    = new mydriver.makePage( slDriver, 'Test Page' );
 
-testPage.bind( ui.btn_prevDriverPage, slDriver.driverApi.mAction.mPrevPage );
-testPage.bind( ui.btn_nextDriverPage, slDriver.driverApi.mAction.mNextPage );
+slDriver.driverPages.forEach( bindPages );
+function bindPages( page,  index, array ) {
+    page.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
+    page.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
+}
+
+// Create subpage areas to contain the subpages.
+var subPageArea = new mydriver.makeSubPageArea( MixerPage, 'Knobs' );
+var subPage     = new mydriver.makeSubPage( subPageArea, 'Pan' );
+subpage         = new mydriver.makeSubPage( subPageArea, 'Send' );
+
+MixerPage.bindAction( ui.btn_prevKnobSubPage, subPageArea.api.mAction.mPrev );
+MixerPage.bindAction( ui.btn_nextKnobSubPage, subPageArea.api.mAction.mNext );
+
+
+
+
 
 
