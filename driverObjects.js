@@ -68,7 +68,8 @@ function    Driver( vendor, model, author )
  */
 function DriverPage( deviceDriver, pageName, numSubpageAreas, numSubPages )
 {
-    var pageApi         = deviceDriver.mMapping.makePage( pageName );
+    this.pageApi        = deviceDriver.mMapping.makePage( pageName );
+    var  pageApi        = this.pageApi
 
     this.name           = pageName;
     this.subpageArea    = [ ];
@@ -137,8 +138,13 @@ function DriverPage( deviceDriver, pageName, numSubpageAreas, numSubPages )
 function Button( deviceDriver, x, y, w, h )
 {
     this.buttonApi = deviceDriver.mSurface.makeButton( x, y, w, h );
+
     //knobs.push( this );
 
+    this.bind = function( midiInput, channel, cc )
+    {
+        this.buttonApi.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc );
+    }
     this.setShapeCircle = function( )
     {
         this.buttonApi.setShapeCircle( );

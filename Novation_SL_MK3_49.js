@@ -313,24 +313,37 @@ function makeSurfaceElements( )
         ui.knobGroup[ i ] = makeKnobStrip( i, 6, 0 );
     }
 
-    ui.pianoKeys    = new mydriver.makePianoKeys( slDriver.driverApi, 5, 10, 48, 7, 0, NUM_PIANO_KEYS )
+    ui.pianoKeys    = new mydriver.makePianoKeys( slDriver.driverApi, 5, 10, 48, 7, 0, NUM_PIANO_KEYS );
 
-    ui.knobgroupBlindPanel  = new mydriver.makeBlindPanel( slDriver.driverApi, 6, 0 + 2, ui.numStrips * 2, 2 )
-    ui.knobgroupBlindPanel2 = new mydriver.makeBlindPanel( slDriver.driverApi, 6 + 16, 0 + 2, 2, 2 )
+    ui.knobgroupBlindPanel  = new mydriver.makeBlindPanel( slDriver.driverApi, 6, 0 + 2, ui.numStrips * 2, 2 );
+    ui.knobgroupBlindPanel2 = new mydriver.makeBlindPanel( slDriver.driverApi, 6 + 16, 0 + 2, 2, 2 );
 
-    ui.transport    = makeTransport( 41, 7 )
+    ui.transport    = makeTransport( 41, 7 );
 
-    ui.modWheel     = new mydriver.makeModWheel( slDriver.driverApi, 3, 11, 1, 6 )
-    ui.pitchwheel   = new mydriver.makePitchWheel( slDriver.driverApi, 1, 11, 1, 6 )
+    ui.modWheel     = new mydriver.makeModWheel( slDriver.driverApi, 3, 11, 1, 6 );
+    ui.pitchwheel   = new mydriver.makePitchWheel( slDriver.driverApi, 1, 11, 1, 6 );
 
     return ui
 }
 
 
-var ui = makeSurfaceElements( )
+var ui = makeSurfaceElements( );
+
+ui.btn_prevDriverPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PADS_UP_BUTTON );
+ui.btn_nextDriverPage.bind( slDriver.midiInput, INCONTROLMIDICHANNEL, define.ccId.id.PADS_DOWN_BUTTON );
+
 
 // Create the driver pages. Each created page must bind to the navigation!
-var MixerPage   = new mydriver.makePage( slDriver.driverApi, 'Mixer Page', 2, 8 )
-var testPage    = new mydriver.makePage( slDriver.driverApi, 'Test Page', 2, 8 )
+var MixerPage   = new mydriver.makePage( slDriver.driverApi, 'Mixer Page', 2, 8 );
+
+MixerPage.pageApi.makeActionBinding( ui.btn_prevDriverPage.buttonApi.mSurfaceValue, slDriver.driverApi.mAction.mPrevPage );
+MixerPage.pageApi.makeActionBinding( ui.btn_nextDriverPage.buttonApi.mSurfaceValue, slDriver.driverApi.mAction.mNextPage );
+
+
+
+var testPage    = new mydriver.makePage( slDriver.driverApi, 'Test Page', 2, 8 );
+
+testPage.pageApi.makeActionBinding( ui.btn_prevDriverPage.buttonApi.mSurfaceValue, slDriver.driverApi.mAction.mPrevPage );
+testPage.pageApi.makeActionBinding( ui.btn_nextDriverPage.buttonApi.mSurfaceValue, slDriver.driverApi.mAction.mNextPage );
 
 
