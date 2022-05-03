@@ -25,7 +25,14 @@ function    Driver( vendor, model, author )
     this.midiOutput = this.api.mPorts.makeMidiOutput(  );
     this.driverPages = [  ];
 
+    this.mOnProcessValueChange = function( context, value ){};
+    this.mOnDisplayValueChange = function( context, value, units ){};
+    this.mOnTitleChange = function( context, objectTitle, valueTitle ){};
+    this.mOnColorChange = function( context, r, g, b, a, IsActive ){};
+
+
     const DEBUG_MODE    = 0
+
 
     // @ts-ignore
     if( DEBUG_MODE == 1 )
@@ -79,10 +86,18 @@ function DriverPage( deviceDriver, pageName )
     {
        this.api.makeActionBinding( control.api.mSurfaceValue, action );
     }
+    this.bindValue = function( control, value )
+    {
+        this.api.makeValueBinding( control.api.mSurfaceValue, value ).setTypeToggle( );
+    }
+
     this.api.mOnActivate = function( context )
     {
         context.setState( 'Current Page', pageName )
         console.log( 'Page ' + pageName )
+    }
+    this.api.mOnDeactivate = function( context )
+    {
     }
 }
 
@@ -92,8 +107,6 @@ function DriverPage( deviceDriver, pageName )
  *
  * @param driverPage        Parent page.
  * @param subPageAreaName   Name of the subpage area.
- * @param numSubPages       Number of subpages to create for
- *                          this area.
  */
 function SubPageArea( driverPage, subPageAreaName )
 {
@@ -107,8 +120,8 @@ function SubPageArea( driverPage, subPageAreaName )
 /**
  * Create the subpages for a subpage area.
  *
- * @param subPageArea
- * @param subPageName
+ * @param subPageArea   Subpage area object.
+ * @param subPageName   Subpage name.
  */
 function SubPage( subPageArea, subPageName )
 {
@@ -122,6 +135,9 @@ function SubPage( subPageArea, subPageName )
         context.setState( 'Current SubPage', subPageName );
         console.log( 'Subpage ' + subPageName );
     }
+    this.api.mOnDeactivate = function( context )
+    {
+    }
 }
 
 
@@ -129,10 +145,10 @@ function SubPage( subPageArea, subPageName )
  * Construct a virtual button for the control surface.
  *
  * @param deviceDriver Driver object.
- * @param x
- * @param y
- * @param w
- * @param h
+ * @param x     Object location x.
+ * @param y     Object location y.
+ * @param w     Object width.
+ * @param h     Object height.
  */
 function Button( deviceDriver, x, y, w, h )
 {
@@ -148,16 +164,33 @@ function Button( deviceDriver, x, y, w, h )
     {
         this.api.setShapeCircle( );
     }
+
+    this.api.mSurfaceValue.mOnProcessValueChange = function( context, value )
+    {
+        deviceDriver.mOnProcessValueChange( context, value );
+    }
+    this.api.mSurfaceValue.mOnDisplayValueChange = function( context, value, units )
+    {
+        deviceDriver.mOnDisplayValueChange( context, value, units );
+    }
+    this.api.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
+    {
+        deviceDriver.mOnTitleChange( context, objectTitle, valueTitle );
+    }
+    this.api.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
+    {
+        deviceDriver.mOnColorChange( context, r, g, b, a, IsActive );
+    }
 }
 
 /**
  * Construct a virtual knob for the surface.
  *
  * @param deviceDriver Driver object.
- * @param x
- * @param y
- * @param w
- * @param h
+ * @param x     Object location x.
+ * @param y     Object location y.
+ * @param w     Object width.
+ * @param h     Object height.
  */
 function Knob( deviceDriver, x, y, w, h )
 {
@@ -167,17 +200,34 @@ function Knob( deviceDriver, x, y, w, h )
     {
         this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc ).setTypeRelativeTwosComplement( );
     }
+
+    this.api.mSurfaceValue.mOnProcessValueChange = function( context, value )
+    {
+        deviceDriver.mOnProcessValueChange( context, value );
+    }
+    this.api.mSurfaceValue.mOnDisplayValueChange = function( context, value, units )
+    {
+        deviceDriver.mOnDisplayValueChange( context, value, units );
+    }
+    this.api.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
+    {
+        deviceDriver.mOnTitleChange( context, objectTitle, valueTitle );
+    }
+    this.api.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
+    {
+        deviceDriver.mOnColorChange( context, r, g, b, a, IsActive );
+    }
 }
 
 
 /**
  * Construct a virtual fader for the surface.
  *
- * @param deviceDriver
- * @param x
- * @param y
- * @param w
- * @param h
+ * @param deviceDriver Driver object.
+ * @param x     Object location x.
+ * @param y     Object location y.
+ * @param w     Object width.
+ * @param h     Object height.
  */
 function Fader( deviceDriver, x, y, w, h )
 {
@@ -191,17 +241,34 @@ function Fader( deviceDriver, x, y, w, h )
     {
         this.api.setTypeVertical( );
     }
+
+    this.api.mSurfaceValue.mOnProcessValueChange = function( context, value )
+    {
+        deviceDriver.mOnProcessValueChange( context, value );
+    }
+    this.api.mSurfaceValue.mOnDisplayValueChange = function( context, value, units )
+    {
+        deviceDriver.mOnDisplayValueChange( context, value, units );
+    }
+    this.api.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
+    {
+        deviceDriver.mOnTitleChange( context, objectTitle, valueTitle );
+    }
+    this.api.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
+    {
+        deviceDriver.mOnColorChange( context, r, g, b, a, IsActive );
+    }
 }
 
 
 /**
  * Construct a virtual label for the surface.
  *
- * @param deviceDriver
- * @param x
- * @param y
- * @param w
- * @param h
+ * @param deviceDriver Driver object.
+ * @param x     Object location x.
+ * @param y     Object location y.
+ * @param w     Object width.
+ * @param h     Object height.
  */
 function Label( deviceDriver, x, y, w, h )
 {
@@ -213,11 +280,11 @@ function Label( deviceDriver, x, y, w, h )
 /**
  * Construct a virtual trigger pad for the surface.
  *
- * @param deviceDriver
- * @param x
- * @param y
- * @param w
- * @param h
+ * @param deviceDriver Driver object.
+ * @param x     Object location x.
+ * @param y     Object location y.
+ * @param w     Object width.
+ * @param h     Object height.
  */
 function TriggerPad( deviceDriver, x, y, w, h ) {
     this.api = deviceDriver.api.mSurface.makeTriggerPad( x, y, w, h )
@@ -226,6 +293,23 @@ function TriggerPad( deviceDriver, x, y, w, h ) {
     {
         this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToNote( channel, note );
     }
+
+    this.api.mSurfaceValue.mOnProcessValueChange = function( context, value )
+    {
+        deviceDriver.mOnProcessValueChange( context, value );
+    }
+    this.api.mSurfaceValue.mOnDisplayValueChange = function( context, value, units )
+    {
+        deviceDriver.mOnDisplayValueChange( context, value, units );
+    }
+    this.api.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
+    {
+        deviceDriver.mOnTitleChange( context, objectTitle, valueTitle );
+    }
+    this.api.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
+    {
+        deviceDriver.mOnColorChange( context, r, g, b, a, IsActive );
+    }
 }
 
 
@@ -233,11 +317,13 @@ function TriggerPad( deviceDriver, x, y, w, h ) {
  * Construct a virtual piano keyboard (visual only) for the
  * surface.
  *
- * @param deviceDriver
- * @param x
- * @param y
- * @param w
- * @param h
+ * @param deviceDriver  Driver object.
+ * @param x     Object location x.
+ * @param y     Object location y.
+ * @param w     Object width.
+ * @param h     Object height.
+ * @param first First key on the kayboard.
+ * @param last  Last key on the keyboard.
  */
 function PianoKeys( deviceDriver, x, y, w, h, first, last )
 {
@@ -249,11 +335,11 @@ function PianoKeys( deviceDriver, x, y, w, h, first, last )
  * Construct a virtual blind panel (visual only) for the
  * surface.
  *
- * @param deviceDriver
- * @param x
- * @param y
- * @param w
- * @param h
+ * @param deviceDriver Driver object.
+ * @param x     Object location x.
+ * @param y     Object location y.
+ * @param w     Object width.
+ * @param h     Object height.
  */
 function BlindPanel( deviceDriver, x, y, w, h )
 {
@@ -265,18 +351,18 @@ function BlindPanel( deviceDriver, x, y, w, h )
  * Construct a virtual pitch wheel for the
  * surface.
  *
- * @param deviceDriver
- * @param x
- * @param y
- * @param w
- * @param h
+ * @param deviceDriver Driver object.
+ * @param x     Object location x.
+ * @param y     Object location y.
+ * @param w     Object width.
+ * @param h     Object height.
  */
 function PitchWheel( deviceDriver, x, y, w, h )
 
 {
     this.api = deviceDriver.api.mSurface.makePitchBend( x, y, w, h )
 
-    this.bindPitch = function( channel )
+    this.bindPitch = function( midiInput, channel )
     {
         this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToPitchBend( channel );
     }
@@ -287,17 +373,17 @@ function PitchWheel( deviceDriver, x, y, w, h )
  * Construct a virtual modulation wheel for the
  * surface.
  *
- * @param deviceDriver
- * @param x
- * @param y
- * @param w
- * @param h
+ * @param deviceDriver Driver object.
+ * @param x     Object location x.
+ * @param y     Object location y.
+ * @param w     Object width.
+ * @param h     Object height.
  */
 function ModWheel( deviceDriver, x, y, w, h )
 {
     this.api = deviceDriver.api.mSurface.makeModWheel( x, y, w, h )
 
-    this.bindCC = function( channel, cc )
+    this.bindCC = function( midiInput, channel, cc )
     {
         this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc );
     }

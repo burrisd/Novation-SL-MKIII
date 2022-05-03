@@ -363,6 +363,7 @@ function makeSurfaceMidiBindings( ui )
 var ui = makeSurfaceElements( );
 makeSurfaceMidiBindings( ui );
 
+
 // Create the driver pages. Each created page must bind to the navigation!
 var MixerPage   = new mydriver.makePage( slDriver, 'Mixer Page' );
 var testPage    = new mydriver.makePage( slDriver, 'Test Page' );
@@ -371,15 +372,44 @@ slDriver.driverPages.forEach( bindPages );
 function bindPages( page,  index, array ) {
     page.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
     page.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
+    page.bindValue( ui.transport.btnRewind, page.api.mHostAccess.mTransport.mValue.mRewind );
+    page.bindValue( ui.transport.btnForward, page.api.mHostAccess.mTransport.mValue.mForward );
+    page.bindValue( ui.transport.btnStop, page.api.mHostAccess.mTransport.mValue.mStop );
+    page.bindValue( ui.transport.btnStart, page.api.mHostAccess.mTransport.mValue.mStart );
+    page.bindValue( ui.transport.btnCycle, page.api.mHostAccess.mTransport.mValue.mCycleActive );
+    page.bindValue( ui.transport.btnRecord, page.api.mHostAccess.mTransport.mValue.mRecord );
 }
 
 // Create subpage areas to contain the subpages.
 var subPageArea = new mydriver.makeSubPageArea( MixerPage, 'Knobs' );
 var subPage     = new mydriver.makeSubPage( subPageArea, 'Pan' );
-subpage         = new mydriver.makeSubPage( subPageArea, 'Send' );
+subPage         = new mydriver.makeSubPage( subPageArea, 'Send' );
 
 MixerPage.bindAction( ui.btn_prevKnobSubPage, subPageArea.api.mAction.mPrev );
 MixerPage.bindAction( ui.btn_nextKnobSubPage, subPageArea.api.mAction.mNext );
+
+function mOnProcessValueChange( context, value )
+{
+}
+
+function mOnDisplayValueChange( context, value, units )
+{
+}
+
+function mOnTitleChange( context, objectTitle, valueTitle )
+{
+}
+
+function mOnColorChange( context, r, g, b, a, IsActive )
+{
+}
+
+slDriver.mOnProcessValueChange = mOnProcessValueChange;
+slDriver.mOnDisplayValueChange = mOnDisplayValueChange;
+slDriver.mOnTitleChange = mOnTitleChange;
+slDriver.mOnColorChange = mOnColorChange;
+
+
 
 
 
