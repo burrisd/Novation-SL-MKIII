@@ -82,6 +82,10 @@ function DriverPage( deviceDriver, pageName )
 
     deviceDriver.driverPages.push( this );
 
+    this.hostTransportInfo( )
+    {
+        return this.api.mHostAccess.mTransport.mValue;
+    }
     this.bindAction = function( control, action )
     {
        this.api.makeActionBinding( control.api.mSurfaceValue, action );
@@ -153,8 +157,6 @@ function SubPage( subPageArea, subPageName )
 function Button( deviceDriver, x, y, w, h )
 {
     this.api = deviceDriver.api.mSurface.makeButton( x, y, w, h );
-
-    //knobs.push( this );
 
     this.bindCC = function( midiInput, channel, cc )
     {

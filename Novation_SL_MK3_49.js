@@ -372,12 +372,12 @@ slDriver.driverPages.forEach( bindPages );
 function bindPages( page,  index, array ) {
     page.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
     page.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
-    page.bindValue( ui.transport.btnRewind, page.api.mHostAccess.mTransport.mValue.mRewind );
-    page.bindValue( ui.transport.btnForward, page.api.mHostAccess.mTransport.mValue.mForward );
-    page.bindValue( ui.transport.btnStop, page.api.mHostAccess.mTransport.mValue.mStop );
-    page.bindValue( ui.transport.btnStart, page.api.mHostAccess.mTransport.mValue.mStart );
-    page.bindValue( ui.transport.btnCycle, page.api.mHostAccess.mTransport.mValue.mCycleActive );
-    page.bindValue( ui.transport.btnRecord, page.api.mHostAccess.mTransport.mValue.mRecord );
+    page.bindValue( ui.transport.btnRewind, page.hostTransportInfo( ).mRewind );
+    page.bindValue( ui.transport.btnForward, page.hostTransportInfo( ).mForward );
+    page.bindValue( ui.transport.btnStop, page.hostTransportInfo( ).mStop );
+    page.bindValue( ui.transport.btnStart, page.hostTransportInfo( ).mStart );
+    page.bindValue( ui.transport.btnCycle, page.hostTransportInfo( ).mCycleActive );
+    page.bindValue( ui.transport.btnRecord, page.hostTransportInfo( ).mRecord );
 }
 
 // Create subpage areas to contain the subpages.
