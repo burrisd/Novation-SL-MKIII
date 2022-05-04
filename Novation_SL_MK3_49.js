@@ -121,6 +121,7 @@ function lcdActions( )
     }
 }
 
+
 /**
  * LED accessor functions to simplify calling of helper
  * functions.
@@ -162,6 +163,7 @@ function ledActions( )
         slDriver.midiOutput.sendMidi( context, msg )
     }
 }
+
 
 var lcdApi = new lcdActions
 var ledApi = new ledActions
@@ -320,6 +322,13 @@ function makeSurfaceElements( )
     return ui
 }
 
+
+/**
+ * Bind MIDI to surface controls.
+ *
+ * @param ui    User interface structure, container for surface
+ *              controls.
+ */
 function makeSurfaceMidiBindings( ui )
 {
     // Bind the controls to MIDI CC.
@@ -368,8 +377,34 @@ makeSurfaceMidiBindings( ui );
 var MixerPage   = new mydriver.makePage( slDriver, 'Mixer Page' );
 var testPage    = new mydriver.makePage( slDriver, 'Test Page' );
 
+
+// Create subpage areas to contain the subpages.
+var subPageArea = new mydriver.makeSubPageArea( MixerPage, 'Knobs' );
+var subPagePan  = new mydriver.makeSubPage( subPageArea, 'Pan' );
+var subPageSend = new mydriver.makeSubPage( subPageArea, 'Send' );
+
+
+/* Create a binding for the controls that exist on every page/subpage. This traverses the
+ * the list of created pages and makes bindings for all pages/subpages.
+ */
 slDriver.driverPages.forEach( bindPages );
-function bindPages( page,  index, array ) {
+function bindPages( page,  index, array )
+{
+    var hostMixerBankZone   = page.api.mHostAccess.mMixConsole.makeMixerBankZone( )
+        .excludeInputChannels( )
+        .excludeOutputChannels( )
+
+    if( page.subPageArea.length == 0 )
+    {
+        console.log( 'Page binding ' + page.name )
+        for( var i = 0; i < ui.numStrips; ++i )
+        {
+            var channelBankItem = hostMixerBankZone.makeMixerBankChannel(  );
+            var selectedButtonValue = ui.knobGroup[ i ].button.api.mSurfaceValue;
+
+            page.api.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected );
+        }
+    }
     page.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
     page.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
     page.bindValue( ui.transport.btnRewind, page.hostTransportInfo( ).mRewind );
@@ -378,36 +413,42 @@ function bindPages( page,  index, array ) {
     page.bindValue( ui.transport.btnStart, page.hostTransportInfo( ).mStart );
     page.bindValue( ui.transport.btnCycle, page.hostTransportInfo( ).mCycleActive );
     page.bindValue( ui.transport.btnRecord, page.hostTransportInfo( ).mRecord );
+    /* If the page has subpages, bind the subpage navigation. */
+    page.subPageArea.forEach( bindSubpageArea )
+    {
+        function bindSubpageArea( subPageArea, index, array )
+        {
+            page.bindAction( ui.btn_prevKnobSubPage, subPageArea.api.mAction.mPrev );
+            page.bindAction( ui.btn_nextKnobSubPage, subPageArea.api.mAction.mNext );
+
+            subPageArea.subPages.forEach( bindSubPage )
+            {
+                function bindSubPage( subPage, index, array )
+                {
+                    for( var i = 0; i < ui.numStrips; ++i )
+                    {
+                        var channelBankItem     = hostMixerBankZone.makeMixerBankChannel(  );
+
+                        console.log( 'Subpage binding ' + subPage.name );
+                        page.api.makeValueBinding( ui.knobGroup[ i ].button.api.mSurfaceValue, channelBankItem.mValue.mSelected ).setSubPage( subPage.api );
+                    }
+                }
+            }
+        }
+    }
+
 }
 
-// Create subpage areas to contain the subpages.
-var subPageArea = new mydriver.makeSubPageArea( MixerPage, 'Knobs' );
-var subPage     = new mydriver.makeSubPage( subPageArea, 'Pan' );
-subPage         = new mydriver.makeSubPage( subPageArea, 'Send' );
+//page.makeValueBinding( knobValue, channelBankItem.mValue.mPan ).setSubPage( subPagePan )
+//page.makeValueBinding( muteValue, channelBankItem.mValue.mMute ).setTypeToggle( )
+//page.makeValueBinding( soloValue, channelBankItem.mValue.mSolo ).setTypeToggle( )
+//page.makeValueBinding( faderValue, channelBankItem.mValue.mVolume ).setValueTakeOverModePickup( )
+//page.makeValueBinding( knobValue, sendLevel ).setSubPage( subPage )
+//page.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected )
+//page.makeValueBinding( surfaceElements.knobStrips[ idx ].knob.mSurfaceValue, selectedTrackChannel.mQuickControls.getByIndex( idx ) )
 
-MixerPage.bindAction( ui.btn_prevKnobSubPage, subPageArea.api.mAction.mPrev );
-MixerPage.bindAction( ui.btn_nextKnobSubPage, subPageArea.api.mAction.mNext );
 
-function mOnProcessValueChange( context, value )
-{
-}
 
-function mOnDisplayValueChange( context, value, units )
-{
-}
-
-function mOnTitleChange( context, objectTitle, valueTitle )
-{
-}
-
-function mOnColorChange( context, r, g, b, a, IsActive )
-{
-}
-
-slDriver.mOnProcessValueChange = mOnProcessValueChange;
-slDriver.mOnDisplayValueChange = mOnDisplayValueChange;
-slDriver.mOnTitleChange = mOnTitleChange;
-slDriver.mOnColorChange = mOnColorChange;
 
 
 

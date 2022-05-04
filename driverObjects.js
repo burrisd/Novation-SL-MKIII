@@ -25,12 +25,6 @@ function    Driver( vendor, model, author )
     this.midiOutput = this.api.mPorts.makeMidiOutput(  );
     this.driverPages = [  ];
 
-    this.mOnProcessValueChange = function( context, value ){};
-    this.mOnDisplayValueChange = function( context, value, units ){};
-    this.mOnTitleChange = function( context, objectTitle, valueTitle ){};
-    this.mOnColorChange = function( context, r, g, b, a, IsActive ){};
-
-
     const DEBUG_MODE    = 0
 
 
@@ -82,7 +76,7 @@ function DriverPage( deviceDriver, pageName )
 
     deviceDriver.driverPages.push( this );
 
-    this.hostTransportInfo( )
+    this.hostTransportInfo = function( )
     {
         return this.api.mHostAccess.mTransport.mValue;
     }
@@ -97,11 +91,7 @@ function DriverPage( deviceDriver, pageName )
 
     this.api.mOnActivate = function( context )
     {
-        context.setState( 'Current Page', pageName )
         console.log( 'Page ' + pageName )
-    }
-    this.api.mOnDeactivate = function( context )
-    {
     }
 }
 
@@ -135,12 +125,7 @@ function SubPage( subPageArea, subPageName )
 
     this.api.mOnActivate = function( context )
     {
-        var currentPage = context.getState( 'Current Page' );
-        context.setState( 'Current SubPage', subPageName );
-        console.log( 'Subpage ' + subPageName );
-    }
-    this.api.mOnDeactivate = function( context )
-    {
+        console.log( 'Subpage ' + subPageName )
     }
 }
 
@@ -166,23 +151,6 @@ function Button( deviceDriver, x, y, w, h )
     {
         this.api.setShapeCircle( );
     }
-
-    this.api.mSurfaceValue.mOnProcessValueChange = function( context, value )
-    {
-        deviceDriver.mOnProcessValueChange( context, value );
-    }
-    this.api.mSurfaceValue.mOnDisplayValueChange = function( context, value, units )
-    {
-        deviceDriver.mOnDisplayValueChange( context, value, units );
-    }
-    this.api.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
-    {
-        deviceDriver.mOnTitleChange( context, objectTitle, valueTitle );
-    }
-    this.api.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
-    {
-        deviceDriver.mOnColorChange( context, r, g, b, a, IsActive );
-    }
 }
 
 /**
@@ -201,23 +169,6 @@ function Knob( deviceDriver, x, y, w, h )
     this.bindCC = function( midiInput, channel, cc )
     {
         this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToControlChange( channel, cc ).setTypeRelativeTwosComplement( );
-    }
-
-    this.api.mSurfaceValue.mOnProcessValueChange = function( context, value )
-    {
-        deviceDriver.mOnProcessValueChange( context, value );
-    }
-    this.api.mSurfaceValue.mOnDisplayValueChange = function( context, value, units )
-    {
-        deviceDriver.mOnDisplayValueChange( context, value, units );
-    }
-    this.api.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
-    {
-        deviceDriver.mOnTitleChange( context, objectTitle, valueTitle );
-    }
-    this.api.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
-    {
-        deviceDriver.mOnColorChange( context, r, g, b, a, IsActive );
     }
 }
 
@@ -242,23 +193,6 @@ function Fader( deviceDriver, x, y, w, h )
     this.setTypeVertical = function( )
     {
         this.api.setTypeVertical( );
-    }
-
-    this.api.mSurfaceValue.mOnProcessValueChange = function( context, value )
-    {
-        deviceDriver.mOnProcessValueChange( context, value );
-    }
-    this.api.mSurfaceValue.mOnDisplayValueChange = function( context, value, units )
-    {
-        deviceDriver.mOnDisplayValueChange( context, value, units );
-    }
-    this.api.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
-    {
-        deviceDriver.mOnTitleChange( context, objectTitle, valueTitle );
-    }
-    this.api.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
-    {
-        deviceDriver.mOnColorChange( context, r, g, b, a, IsActive );
     }
 }
 
@@ -294,23 +228,6 @@ function TriggerPad( deviceDriver, x, y, w, h ) {
     this.bindNote = function( midiInput, channel, note )
     {
         this.api.mSurfaceValue.mMidiBinding.setInputPort( midiInput ).bindToNote( channel, note );
-    }
-
-    this.api.mSurfaceValue.mOnProcessValueChange = function( context, value )
-    {
-        deviceDriver.mOnProcessValueChange( context, value );
-    }
-    this.api.mSurfaceValue.mOnDisplayValueChange = function( context, value, units )
-    {
-        deviceDriver.mOnDisplayValueChange( context, value, units );
-    }
-    this.api.mSurfaceValue.mOnTitleChange = function( context, objectTitle, valueTitle )
-    {
-        deviceDriver.mOnTitleChange( context, objectTitle, valueTitle );
-    }
-    this.api.mSurfaceValue.mOnColorChange = function( context, r, g, b, a, IsActive )
-    {
-        deviceDriver.mOnColorChange( context, r, g, b, a, IsActive );
     }
 }
 
