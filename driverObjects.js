@@ -13,7 +13,28 @@
  * DATA WITH THE THIS FRAMEWORK!
  */
 
+function driverSubPage(  )
+{
+    this.data;
+}
 
+function driverSubPageArea(  )
+{
+    this.data;
+    this.subPage = [  ];
+}
+
+function driverPage(  )
+{
+    this.data;
+    this.subPageArea = [  ];
+}
+
+var driverData = [  ];
+
+var currentPage = 0;
+var currentSubPage = 0;
+var currentSubPageArea = 0;
 
 function    Driver( vendor, model, author )
 {
@@ -23,10 +44,8 @@ function    Driver( vendor, model, author )
 
     this.midiInput = this.api.mPorts.makeMidiInput(  );
     this.midiOutput = this.api.mPorts.makeMidiOutput(  );
-    this.driverPages = [  ];
 
-    const DEBUG_MODE    = 0
-
+    const DEBUG_MODE    = 0;
 
     // @ts-ignore
     if( DEBUG_MODE == 1 )
@@ -72,9 +91,14 @@ function DriverPage( deviceDriver, pageName )
 {
     this.name           = pageName;
     this.api            = deviceDriver.api.mMapping.makePage( this.name );
-    this.subPageArea    = [  ];
 
-    deviceDriver.driverPages.push( this );
+    pageData = new driverPage( );
+    pageData.data = this;
+
+    driverData.push( pageData );
+    currentPage = driverData.length - 1;
+
+    console.log( 'Current Page ' + driverData[ currentPage ].data.name )
 
     this.hostTransportInfo = function( )
     {
@@ -106,9 +130,14 @@ function SubPageArea( driverPage, subPageAreaName )
 {
     this.name           = subPageAreaName;
     this.api            = driverPage.api.makeSubPageArea( this.name );
-    this.subPages       = [  ];
 
-    driverPage.subPageArea.push( this );
+    var subPageAreaData = new driverSubPageArea(  );
+    subPageAreaData.data = this;
+
+    driverData[ currentPage ].subPageArea.push( subPageAreaData )
+    currentSubPageArea = driverData[ currentPage ].subPageArea.length - 1;
+    console.log( 'Current subpagearea ' + driverData[ currentPage ].subPageArea[ currentSubPageArea ].data.name )
+
 }
 
 /**
@@ -121,11 +150,19 @@ function SubPage( subPageArea, subPageName )
 {
     this.name = subPageName;
     this.api = subPageArea.api.makeSubPage( this.name );
-    subPageArea.subPages.push( this );
+
+    var subPageData = new driverSubPage(  );
+    subPageData.data = this;
+
+    driverData[ currentPage ].subPageArea[ currentSubPageArea ].subPage.push( subPageData );
+    currentSubPage = driverData[ currentPage ].subPageArea[ currentSubPageArea ].subPage.length - 1;
+    console.log( 'Subpage Title ' + driverData[ currentPage ].subPageArea[ currentSubPageArea ].subPage[ currentSubPage ].data.name )
+    console.log( 'Length ' + driverData[ currentPage ].subPageArea[ currentSubPageArea ].subPage.length.toString(  ) )
+
 
     this.api.mOnActivate = function( context )
     {
-        console.log( 'Subpage ' + subPageName )
+        console.log( 'Subpage ' + subPageName );
     }
 }
 
@@ -308,6 +345,10 @@ function ModWheel( deviceDriver, x, y, w, h )
     }
 }
 
+function DriverData(  )
+{
+    return driverData;
+}
 
 module.exports =
 {
@@ -325,4 +366,5 @@ module.exports =
     makeFader:          Fader,
     makeKnob:           Knob,
     makeButton:         Button,
+    getdriverData:      DriverData,
 }

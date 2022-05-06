@@ -52,19 +52,18 @@ const CENTER_LCD_OFFSET             = 8     /*!< Center screen index. */
 
 
 // Get the MIDI Remote API interfaces. (Required!)
-var midiremote_api = require( 'midiremote_api_v1' )
+var midiremote_api = require( 'midiremote_api_v1' );
 
 /** The helper functions construct the MIDI messages required
  *  to update the displays and LEDs based on values passed in to
  *  the functions.
  */
 var helper   = require( './helper' );
-var define   = require( './constants' )  // Constants defining surface controls.
-var mydriver = require( './driverObjects.js' )
-
+var define   = require( './constants' );  // Constants defining surface controls.
+var driverApi = require( './driverObjects.js' );
 
 // Create the device driver object.
-var slDriver        = new mydriver.makeDriver( 'Novation', 'SL MK3 49', 'David Burris - Burris Audio' )
+var slDriver        = new driverApi.makeDriver( 'Novation', 'SL MK3 49', 'David Burris - Burris Audio' )
 
 // Define some global data for the application.
 var trackRed   = [ ]
@@ -187,17 +186,17 @@ function makeTransport( x, y ) {
 
     // Create the buttons.
 
-    transport.btnRewind = new mydriver.makeButton( slDriver, currX, y, w, h );
+    transport.btnRewind = new driverApi.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnForward = new mydriver.makeButton( slDriver, currX, y, w, h );
+    transport.btnForward = new driverApi.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnStop = new mydriver.makeButton( slDriver, currX, y, w, h );
+    transport.btnStop = new driverApi.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnStart = new mydriver.makeButton( slDriver, currX, y, w, h );
+    transport.btnStart = new driverApi.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnCycle = new mydriver.makeButton( slDriver, currX, y, w, h );
+    transport.btnCycle = new driverApi.makeButton( slDriver, currX, y, w, h );
     currX += w;
-    transport.btnRecord = new mydriver.makeButton( slDriver, currX, y, w, h );
+    transport.btnRecord = new driverApi.makeButton( slDriver, currX, y, w, h );
     currX += w;
 
     return transport
@@ -220,10 +219,10 @@ function makeFaderStrip( faderIndex, x, y ) {
     /**
      * Create the surface controls.
      */
-    faderStrip.btnTop = new mydriver.makeButton( slDriver, x + 2 * faderIndex, y, 2, 1 )
-    faderStrip.btnBottom = new mydriver.makeButton( slDriver, x + 2 * faderIndex, y + 1, 2, 1 )
+    faderStrip.btnTop = new driverApi.makeButton( slDriver, x + 2 * faderIndex, y, 2, 1 )
+    faderStrip.btnBottom = new driverApi.makeButton( slDriver, x + 2 * faderIndex, y + 1, 2, 1 )
 
-    faderStrip.fader = new mydriver.makeFader( slDriver, x + 2 * faderIndex, y + 3, 2, 6 )
+    faderStrip.fader = new driverApi.makeFader( slDriver, x + 2 * faderIndex, y + 3, 2, 6 )
     faderStrip.fader.setTypeVertical( )
 
     return faderStrip
@@ -252,10 +251,10 @@ function makeKnobStrip( knobIndex, x, y ) {
     /**
      * Create the controls.
      */
-    knobStrip.knob      = new mydriver.makeKnob( slDriver, x + 2 * knobIndex, y, 2, 2 )
-    knobStrip.button    = new mydriver.makeButton( slDriver, x + 2 * knobIndex, y + 4, 2, 1 )
-    knobStrip.pad1      = new mydriver.makeTriggerPad( slDriver, x + 2 * knobIndex, y + 5, 2, 2 )
-    knobStrip.pad2      = new mydriver.makeTriggerPad( slDriver, x + 2 * knobIndex, y + 7, 2, 2 )
+    knobStrip.knob      = new driverApi.makeKnob( slDriver, x + 2 * knobIndex, y, 2, 2 )
+    knobStrip.button    = new driverApi.makeButton( slDriver, x + 2 * knobIndex, y + 4, 2, 1 )
+    knobStrip.pad1      = new driverApi.makeTriggerPad( slDriver, x + 2 * knobIndex, y + 5, 2, 2 )
+    knobStrip.pad2      = new driverApi.makeTriggerPad( slDriver, x + 2 * knobIndex, y + 7, 2, 2 )
 
     return knobStrip
 }
@@ -275,33 +274,33 @@ function makeSurfaceElements( )
 
     ui.numStrips = 8;
 
-    ui.btn_prevDriverPage = new mydriver.makeButton( slDriver, 4, 5, 2, 2 );
-    ui.btn_nextDriverPage = new mydriver.makeButton( slDriver, 4, 7, 2, 2 );
+    ui.btn_prevDriverPage = new driverApi.makeButton( slDriver, 4, 5, 2, 2 );
+    ui.btn_nextDriverPage = new driverApi.makeButton( slDriver, 4, 7, 2, 2 );
 
     ui.btn_nextDriverPage.setShapeCircle( );
     ui.btn_prevDriverPage.setShapeCircle( );
 
-    ui.btn_options      = new mydriver.makeButton( slDriver, 22, 4, 2, 1 );
-    ui.btn_grid         = new mydriver.makeButton( slDriver, 4, 4, 2, 1 );
-    ui.btn_clear        = new mydriver.makeButton( slDriver, 0, 6, 2, 1 );
-    ui.btn_duplicate    = new mydriver.makeButton( slDriver, 0, 5, 2, 1  );
-    ui.btn_padLeft      = new mydriver.makeButton( slDriver, 22, 5, 2, 2 );
-    ui.btn_padRight     = new mydriver.makeButton( slDriver, 22, 7, 2, 2 );
+    ui.btn_options      = new driverApi.makeButton( slDriver, 22, 4, 2, 1 );
+    ui.btn_grid         = new driverApi.makeButton( slDriver, 4, 4, 2, 1 );
+    ui.btn_clear        = new driverApi.makeButton( slDriver, 0, 6, 2, 1 );
+    ui.btn_duplicate    = new driverApi.makeButton( slDriver, 0, 5, 2, 1  );
+    ui.btn_padLeft      = new driverApi.makeButton( slDriver, 22, 5, 2, 2 );
+    ui.btn_padRight     = new driverApi.makeButton( slDriver, 22, 7, 2, 2 );
 
     ui.btn_padLeft.setShapeCircle( );
     ui.btn_padRight.setShapeCircle( );
 
     // Create left.right arrow buttons.
-    ui.btn_prevTrack = new mydriver.makeButton( slDriver, 0, 7, 2, 1 );
-    ui.btn_nextTrack = new mydriver.makeButton( slDriver, 2, 7, 2, 1 );
+    ui.btn_prevTrack = new driverApi.makeButton( slDriver, 0, 7, 2, 1 );
+    ui.btn_nextTrack = new driverApi.makeButton( slDriver, 2, 7, 2, 1 );
 
-    ui.btn_prevKnobSubPage = new mydriver.makeButton( slDriver, 4, 2, 2, 1 );
-    ui.btn_nextKnobSubPage = new mydriver.makeButton( slDriver, 4, 3, 2, 1 );
+    ui.btn_prevKnobSubPage = new driverApi.makeButton( slDriver, 4, 2, 2, 1 );
+    ui.btn_nextKnobSubPage = new driverApi.makeButton( slDriver, 4, 3, 2, 1 );
 
-    ui.btn_prevFaderSubPage = new mydriver.makeButton( slDriver, 40, 0, 2, 1 );
-    ui.btn_nextFaderSubPage = new mydriver.makeButton( slDriver, 40, 1, 2, 1 );
+    ui.btn_prevFaderSubPage = new driverApi.makeButton( slDriver, 40, 0, 2, 1 );
+    ui.btn_nextFaderSubPage = new driverApi.makeButton( slDriver, 40, 1, 2, 1 );
 
-    ui.deviceLabel = new mydriver.makeLabel( slDriver, 45, 0, 7, 2 );
+    ui.deviceLabel = new driverApi.makeLabel( slDriver, 45, 0, 7, 2 );
 
     for (var i = 0; i < ui.numStrips; ++i)
     {
@@ -309,15 +308,15 @@ function makeSurfaceElements( )
         ui.knobGroup[ i ] = makeKnobStrip( i, 6, 0 );
     }
 
-    ui.pianoKeys    = new mydriver.makePianoKeys( slDriver, 5, 10, 48, 7, 0, NUM_PIANO_KEYS );
+    ui.pianoKeys    = new driverApi.makePianoKeys( slDriver, 5, 10, 48, 7, 0, NUM_PIANO_KEYS );
 
-    ui.knobgroupBlindPanel  = new mydriver.makeBlindPanel( slDriver, 6, 0 + 2, ui.numStrips * 2, 2 );
-    ui.knobgroupBlindPanel2 = new mydriver.makeBlindPanel( slDriver, 6 + 16, 0 + 2, 2, 2 );
+    ui.knobgroupBlindPanel  = new driverApi.makeBlindPanel( slDriver, 6, 0 + 2, ui.numStrips * 2, 2 );
+    ui.knobgroupBlindPanel2 = new driverApi.makeBlindPanel( slDriver, 6 + 16, 0 + 2, 2, 2 );
 
     ui.transport    = makeTransport( 41, 7 );
 
-    ui.modWheel     = new mydriver.makeModWheel( slDriver, 3, 11, 1, 6 );
-    ui.pitchwheel   = new mydriver.makePitchWheel( slDriver, 1, 11, 1, 6 );
+    ui.modWheel     = new driverApi.makeModWheel( slDriver, 3, 11, 1, 6 );
+    ui.pitchwheel   = new driverApi.makePitchWheel( slDriver, 1, 11, 1, 6 );
 
     return ui
 }
@@ -372,72 +371,151 @@ function makeSurfaceMidiBindings( ui )
 var ui = makeSurfaceElements( );
 makeSurfaceMidiBindings( ui );
 
-
 // Create the driver pages. Each created page must bind to the navigation!
-var MixerPage   = new mydriver.makePage( slDriver, 'Mixer Page' );
-var testPage    = new mydriver.makePage( slDriver, 'Test Page' );
-
+var MixerPage   = new driverApi.makePage( slDriver, 'Mixer Page' );
 
 // Create subpage areas to contain the subpages.
-var subPageArea = new mydriver.makeSubPageArea( MixerPage, 'Knobs' );
-var subPagePan  = new mydriver.makeSubPage( subPageArea, 'Pan' );
-var subPageSend = new mydriver.makeSubPage( subPageArea, 'Send' );
+var subPageArea = new driverApi.makeSubPageArea( MixerPage, 'Knobs' );
+var subPageSend = new driverApi.makeSubPage( subPageArea, 'Send' );
+var subPagePan  = new driverApi.makeSubPage( subPageArea, 'Pan' );
+
+
+var testPage    = new driverApi.makePage( slDriver, 'Test Page' );
+
+
 
 
 /* Create a binding for the controls that exist on every page/subpage. This traverses the
  * the list of created pages and makes bindings for all pages/subpages.
  */
-slDriver.driverPages.forEach( bindPages );
-function bindPages( page,  index, array )
+
+var driverData = driverApi.getdriverData( );
+
+/*
+ * Debug loop to try to help solve the confusion. What I wouldn't give for some C++
+ * pointers right now!
+ *
+ * @todo I seriously need to think of a coding convention to help with my confusion
+ *       between my code and their code.
+ */
+for(var p = 0; p < driverData.length; ++p )
 {
-    var hostMixerBankZone   = page.api.mHostAccess.mMixConsole.makeMixerBankZone( )
+    console.log( 'Driver Page Name ' + driverData[ p ].data.name );
+    for(var s = 0; s < driverData[ p ].subPageArea.length; ++s)
+    {
+        console.log( 'Driver subpage area name ' + driverData[ p ].subPageArea[ s ].data.name );
+        for( var sp = 0;sp < driverData[ p ].subPageArea[ s ].subPage.length; ++sp )
+        {
+            console.log( 'Driver subpage name ' + driverData[ p ].subPageArea[ s ].subPage[ sp ].data.name );
+        }
+    }
+}
+
+driverData.forEach( bindPages );
+function bindPages( pageData, index, array )
+{
+    var hostMixerBankZone   = pageData.data.api.mHostAccess.mMixConsole.makeMixerBankZone( )
         .excludeInputChannels( )
         .excludeOutputChannels( )
 
-    if( page.subPageArea.length == 0 )
+    pageData.data.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
+    pageData.data.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
+    pageData.data.bindValue( ui.transport.btnRewind, pageData.data.hostTransportInfo( ).mRewind );
+    pageData.data.bindValue( ui.transport.btnForward, pageData.data.hostTransportInfo( ).mForward );
+    pageData.data.bindValue( ui.transport.btnStop, pageData.data.hostTransportInfo( ).mStop );
+    pageData.data.bindValue( ui.transport.btnStart, pageData.data.hostTransportInfo( ).mStart );
+    pageData.data.bindValue( ui.transport.btnCycle, pageData.data.hostTransportInfo( ).mCycleActive );
+    pageData.data.bindValue( ui.transport.btnRecord, pageData.data.hostTransportInfo( ).mRecord );
+
+    if( pageData.subPageArea.length == 0 )
     {
-        console.log( 'Page binding ' + page.name )
         for( var i = 0; i < ui.numStrips; ++i )
         {
-            var channelBankItem = hostMixerBankZone.makeMixerBankChannel(  );
-            var selectedButtonValue = ui.knobGroup[ i ].button.api.mSurfaceValue;
-
-            page.api.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected );
+            pageData.data.api.makeValueBinding( ui.knobGroup[ i ].button.api.mSurfaceValue, hostMixerBankZone.makeMixerBankChannel(  ).mValue.mSelected );
         }
     }
-    page.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
-    page.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
-    page.bindValue( ui.transport.btnRewind, page.hostTransportInfo( ).mRewind );
-    page.bindValue( ui.transport.btnForward, page.hostTransportInfo( ).mForward );
-    page.bindValue( ui.transport.btnStop, page.hostTransportInfo( ).mStop );
-    page.bindValue( ui.transport.btnStart, page.hostTransportInfo( ).mStart );
-    page.bindValue( ui.transport.btnCycle, page.hostTransportInfo( ).mCycleActive );
-    page.bindValue( ui.transport.btnRecord, page.hostTransportInfo( ).mRecord );
-    /* If the page has subpages, bind the subpage navigation. */
-    page.subPageArea.forEach( bindSubpageArea )
+    else
     {
-        function bindSubpageArea( subPageArea, index, array )
+        console.log( 'Bind page: ' + pageData.data.name );
+
+        pageData.subPageArea.forEach( bindSubpageArea )
         {
-            page.bindAction( ui.btn_prevKnobSubPage, subPageArea.api.mAction.mPrev );
-            page.bindAction( ui.btn_nextKnobSubPage, subPageArea.api.mAction.mNext );
-
-            subPageArea.subPages.forEach( bindSubPage )
+            function bindSubpageArea( subPageAreaData, index, array )
             {
-                function bindSubPage( subPage, index, array )
-                {
-                    for( var i = 0; i < ui.numStrips; ++i )
-                    {
-                        var channelBankItem     = hostMixerBankZone.makeMixerBankChannel(  );
+                console.log( 'Bind subpage area: ' + subPageAreaData.data.name );
 
-                        console.log( 'Subpage binding ' + subPage.name );
-                        page.api.makeValueBinding( ui.knobGroup[ i ].button.api.mSurfaceValue, channelBankItem.mValue.mSelected ).setSubPage( subPage.api );
+                pageData.data.bindAction( ui.btn_prevKnobSubPage, subPageAreaData.data.api.mAction.mPrev );
+                pageData.data.bindAction( ui.btn_nextKnobSubPage, subPageAreaData.data.api.mAction.mNext );
+
+                subPageAreaData.subPage.forEach( bindSubPage )
+                {
+                    function bindSubPage( subPageData, index, array )
+                    {
+                        console.log( 'Bind subpage ' + subPageData.data.name );
                     }
                 }
             }
         }
     }
-
 }
+
+//driverData.forEach( bindPages );
+//function bindPages( pageData, index, array ) {
+//    console.log( 'Bind page ' + pageData.data.name );
+//
+//    var hostMixerBankZone   = pageData.data.api.mHostAccess.mMixConsole.makeMixerBankZone( )
+//        .excludeInputChannels( )
+//        .excludeOutputChannels( )
+//
+//    pageData.data.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
+//    pageData.data.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
+//    pageData.data.bindValue( ui.transport.btnRewind, pageData.data.hostTransportInfo( ).mRewind );
+//    pageData.data.bindValue( ui.transport.btnForward, pageData.data.hostTransportInfo( ).mForward );
+//    pageData.data.bindValue( ui.transport.btnStop, pageData.data.hostTransportInfo( ).mStop );
+//    pageData.data.bindValue( ui.transport.btnStart, pageData.data.hostTransportInfo( ).mStart );
+//    pageData.data.bindValue( ui.transport.btnCycle, pageData.data.hostTransportInfo( ).mCycleActive );
+//    pageData.data.bindValue( ui.transport.btnRecord, pageData.data.hostTransportInfo( ).mRecord );
+//
+//    if( pageData.subPageArea.length == 0 )
+//    {
+//        for( var i = 0; i < ui.numStrips; ++i )
+//        {
+//            var channelBankItem     = hostMixerBankZone.makeMixerBankChannel(  );
+//            var selectedButtonValue = ui.knobGroup[ i ].button.api.mSurfaceValue;
+//
+//            pageData.data.api.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected );
+//        }
+//    }
+//    else
+//    {
+//
+//        pageData.subPageArea.forEach( bindSubpageArea )
+//        {
+//            function bindSubpageArea( subPageAreaData, index, array ) {
+//                console.log( 'Bind subpage area ' + subPageAreaData.data.name );
+//
+//                pageData.data.bindAction( ui.btn_prevKnobSubPage, subPageAreaData.data.api.mAction.mPrev );
+//                pageData.data.bindAction( ui.btn_nextKnobSubPage, subPageAreaData.data.api.mAction.mNext );
+//
+//                subPageAreaData.subPage.forEach( bindSubPage )
+//                {
+//                    function bindSubPage( subPageData, index, array ) {
+//                        console.log( 'Subpage binding ' + subPageData.data.name )
+//                        for( var i = 0; i < ui.numStrips; ++i )
+//                        {
+//                            var channelBankItem     = hostMixerBankZone.makeMixerBankChannel(  );
+//
+//                            pageData.data.api.makeValueBinding( ui.knobGroup[ i ].button.api.mSurfaceValue, channelBankItem.mValue.mSelected ).setSubPage( subPageData.data.api );
+//                            pageData.data.api.makeValueBinding( ui.knobGroup[ i ].button.api.mSurfaceValue, channelBankItem.mValue.mSelected ).setSubPage( subPageSend.data.api );
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//
 
 //page.makeValueBinding( knobValue, channelBankItem.mValue.mPan ).setSubPage( subPagePan )
 //page.makeValueBinding( muteValue, channelBankItem.mValue.mMute ).setTypeToggle( )
@@ -446,14 +524,4 @@ function bindPages( page,  index, array )
 //page.makeValueBinding( knobValue, sendLevel ).setSubPage( subPage )
 //page.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected )
 //page.makeValueBinding( surfaceElements.knobStrips[ idx ].knob.mSurfaceValue, selectedTrackChannel.mQuickControls.getByIndex( idx ) )
-
-
-
-
-
-
-
-
-
-
 
