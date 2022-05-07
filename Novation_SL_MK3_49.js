@@ -277,6 +277,13 @@ function makeSurfaceMidiBindings( ui )
 var ui = makeSurfaceElements( );
 makeSurfaceMidiBindings( ui );
 
+
+/**
+ *  Create your page structures.
+ *
+ *  @note   The framework currently REQUIRES that these be created in
+ *  heirarchical order: Page, Subpage Area, Subpage.
+ */
 // Create the driver pages. Each created page must bind to the navigation!
 var MixerPage   = new driverApi.makePage( slDriver, 'Mixer Page' );
 
@@ -291,21 +298,15 @@ var testPage    = new driverApi.makePage( slDriver, 'Test Page' );
 /* Create a binding for the controls that exist on every page/subpage. This traverses the
  * the list of created pages and makes bindings for all pages/subpages.
  */
-
 var driverData = driverApi.getdriverData( );
 
-/*
- * Debug loop to try to help solve the confusion. What I wouldn't give for some C++
- * pointers right now!
- *
- * @todo I seriously need to think of a coding convention to help with my confusion
- *       between my code and their code.
- */
-
 driverData.forEach( bindPages );
-function bindPages( pageData, index, array ) {
+function bindPages( pageData, index, array )
+{
+    // Bind page navigation for all pages. Without this you can get stuck on a page.
     pageData.data.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
     pageData.data.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
+    // Bind the transport controls for all pages.
     pageData.data.bindValue( ui.transport.btnRewind, pageData.data.hostTransportInfo( ).mRewind );
     pageData.data.bindValue( ui.transport.btnForward, pageData.data.hostTransportInfo( ).mForward );
     pageData.data.bindValue( ui.transport.btnStop, pageData.data.hostTransportInfo( ).mStop );
@@ -313,8 +314,16 @@ function bindPages( pageData, index, array ) {
     pageData.data.bindValue( ui.transport.btnCycle, pageData.data.hostTransportInfo( ).mCycleActive );
     pageData.data.bindValue( ui.transport.btnRecord, pageData.data.hostTransportInfo( ).mRecord );
 
+    /* If a page has no subpage areas, the binding must be done on the page level.
+     * If this is done for all pages, it will override the subpage mapping and things
+     * will not work as expected.
+     */
     if( pageData.subPageArea.length == 0 )
     {
+        /* The following call needs to be completed prior to binding to
+         * Host access. You will see this again below in the subpage
+         * mapping section.
+         */
         var hostMixerBankZone   = pageData.data.api.mHostAccess.mMixConsole.makeMixerBankZone( )
         .excludeInputChannels( )
         .excludeOutputChannels( )
@@ -333,6 +342,7 @@ function bindPages( pageData, index, array ) {
         {
             function bindSubpageArea( subPageAreaData, index, array )
             {
+                // Subpage navigation is handled by the parent subpagearea.
                 pageData.data.bindAction( ui.btn_prevKnobSubPage, subPageAreaData.data.api.mAction.mPrev );
                 pageData.data.bindAction( ui.btn_nextKnobSubPage, subPageAreaData.data.api.mAction.mNext );
 
@@ -340,6 +350,11 @@ function bindPages( pageData, index, array ) {
                 {
                     function bindSubPage( subPageData, index, array )
                     {
+                        /* The following call needs to be completed prior to binding to
+                         * Host access. As mentioned above this should be completed just
+                         * prior to mapping. Be mindful of this adding functionality to
+                         * pages later.
+                         */
                         var hostMixerBankZone   = pageData.data.api.mHostAccess.mMixConsole.makeMixerBankZone( )
                             .excludeInputChannels( )
                             .excludeOutputChannels( )
@@ -358,6 +373,36 @@ function bindPages( pageData, index, array ) {
 }
 
 
+MixerPage.api.mOnActivate = function( context )
+{
+    var fromPage = context.getState( 'Current Page' );
+    var newPage  = 'Mixer';
+    context.setState( 'Current Page', newPage );
+
+    console.log( 'Page ' + newPage );
+
+    lcdApi.resetDisplays( context );
+
+    /* Currently there is no subpage for the fader
+     * assembly on the Mixer page, so the center screen
+     * labels for the fader buttons will be configured
+     * here. They should be moved to a subpage and
+     * handled in the subpage OnActive( ) callback.
+     */
+    lcdApi.displayText( context, CENTER_LCD_OFFSET, define.lcdId.center.text.RIGHT_1, 'Mute' );
+    lcdApi.displayText( context, CENTER_LCD_OFFSET, define.lcdId.center.text.RIGHT_2, 'Solo' );
+}
+
+testpage.api.mOnActivate = function( context )
+{
+    var fromPage = context.getState( 'Current Page' );
+    var newPage  = 'Test Page';
+
+    context.setState( 'Current Page ', newPage );
+
+    console.log( 'Page ' + newPage );
+    lcdApi.resetDisplays( context );
+}
 
 //page.makeValueBinding( knobValue, channelBankItem.mValue.mPan ).setSubPage( subPagePan )
 //page.makeValueBinding( muteValue, channelBankItem.mValue.mMute ).setTypeToggle( )
@@ -366,4 +411,6 @@ function bindPages( pageData, index, array ) {
 //page.makeValueBinding( knobValue, sendLevel ).setSubPage( subPage )
 //page.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected )
 //page.makeValueBinding( surfaceElements.knobStrips[ idx ].knob.mSurfaceValue, selectedTrackChannel.mQuickControls.getByIndex( idx ) )
+
+
 

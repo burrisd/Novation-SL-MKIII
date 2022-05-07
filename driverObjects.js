@@ -382,9 +382,9 @@ function lcdActions( )
     /**
      * Set displays to a default condition.
      */
-    this.resetDisplays = function( context, midi )
+    this.resetDisplays = function( context )
     {
-        helper.display.reset( context,  midi );
+        helper.display.reset( context,  midiOutput );
     }
     /**
      * Post a notification for the center LCD.
