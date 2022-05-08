@@ -177,6 +177,7 @@ function makeSurfaceElements( )
 
     ui.knobGroup = { };
     ui.faderGroup = { };
+    ui.blindPanel = [  ];
 
     ui.numStrips = 8;
 
@@ -186,7 +187,7 @@ function makeSurfaceElements( )
     ui.btn_nextDriverPage.setShapeCircle( );
     ui.btn_prevDriverPage.setShapeCircle( );
 
-    ui.btn_options      = new driverApi.makeButton( 22, 4, 2, 1 );
+    ui.btn_options      = new driverApi.makeButton( 22, 6, 2, 1 );
     ui.btn_grid         = new driverApi.makeButton( 4, 4, 2, 1 );
     ui.btn_clear        = new driverApi.makeButton( 0, 9, 2, 1 );
     ui.btn_duplicate    = new driverApi.makeButton( 0, 8, 2, 1  );
@@ -212,10 +213,10 @@ function makeSurfaceElements( )
     {
         ui.faderGroup[ i ] = makeFaderStrip( i, 24, 2 );
         ui.knobGroup[ i ] = makeKnobStrip( i, 6, 0 );
+        ui.blindPanel[ i ] = new driverApi.makeBlindPanel( 6 + 2 * i, 2, 2, 3 );
     }
 
-    ui.knobgroupBlindPanel  = new driverApi.makeBlindPanel( 6, 2, ui.numStrips * 2, 3 );
-    ui.knobgroupBlindPanel2 = new driverApi.makeBlindPanel( 6 + 16, 0 + 2, 2, 3 );
+    ui.knobgroupBlindPanel2 = new driverApi.makeBlindPanel( 6 + 16, 2, 2, 3 );
 
     ui.transport    = makeTransport( 41, 9 );
 
