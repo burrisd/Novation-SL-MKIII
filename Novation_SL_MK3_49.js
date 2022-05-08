@@ -393,7 +393,7 @@ MixerPage.api.mOnActivate = function( context )
     lcdApi.displayText( context, CENTER_LCD_OFFSET, define.lcdId.center.text.RIGHT_2, 'Solo' );
 }
 
-testpage.api.mOnActivate = function( context )
+testPage.api.mOnActivate = function( context )
 {
     var fromPage = context.getState( 'Current Page' );
     var newPage  = 'Test Page';
