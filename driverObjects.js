@@ -199,6 +199,14 @@ function Button( x, y, w, h )
     {
         this.api.setShapeCircle( );
     }
+    this.setTypePush = function(  )
+    {
+        this.api.setTypePush( );
+    }
+    this.setTypeToggle = function( )
+    {
+        this.api.setTypeToggle( );
+    }
 }
 
 /**
@@ -241,6 +249,10 @@ function Fader( x, y, w, h )
     this.setTypeVertical = function( )
     {
         this.api.setTypeVertical( );
+    }
+    this.setTypeHorizontal = function( )
+    {
+        this.api.setTypeHorizontal( );
     }
 }
 
