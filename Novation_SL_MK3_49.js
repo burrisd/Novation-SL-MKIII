@@ -82,9 +82,7 @@ var ledApi = new driverApi.ledApi;
  *
  * @return      Constructed tranport assembly.
  */
-function makeTransport( x, y ) {
-    var transport = { }
-
+function makeTransport( ui, x, y ) {
     var w         = 2
     var h         = 2
 
@@ -92,20 +90,18 @@ function makeTransport( x, y ) {
 
     // Create the buttons.
 
-    transport.btnRewind = new driverApi.makeButton( currX, y, w, h );
+    ui.btnRewind = new driverApi.makeButton( currX, y, w, h );
     currX += w;
-    transport.btnForward = new driverApi.makeButton( currX, y, w, h );
+    ui.btnForward = new driverApi.makeButton( currX, y, w, h );
     currX += w;
-    transport.btnStop = new driverApi.makeButton( currX, y, w, h );
+    ui.btnStop = new driverApi.makeButton( currX, y, w, h );
     currX += w;
-    transport.btnStart = new driverApi.makeButton( currX, y, w, h );
+    ui.btnStart = new driverApi.makeButton( currX, y, w, h );
     currX += w;
-    transport.btnCycle = new driverApi.makeButton( currX, y, w, h );
+    ui.btnCycle = new driverApi.makeButton( currX, y, w, h );
     currX += w;
-    transport.btnRecord = new driverApi.makeButton( currX, y, w, h );
+    ui.btnRecord = new driverApi.makeButton( currX, y, w, h );
     currX += w;
-
-    return transport
 }
 
 
@@ -177,7 +173,7 @@ function makeSurfaceElements( )
 
     ui.knobGroup = { };
     ui.faderGroup = { };
-    ui.blindPanel = [  ];
+    ui.smallScreen = [  ];
 
     ui.numStrips = 8;
 
@@ -213,12 +209,12 @@ function makeSurfaceElements( )
     {
         ui.faderGroup[ i ] = makeFaderStrip( i, 24, 2 );
         ui.knobGroup[ i ] = makeKnobStrip( i, 6, 0 );
-        ui.blindPanel[ i ] = new driverApi.makeBlindPanel( 6 + 2 * i, 2, 2, 3 );
+        ui.smallScreen[ i ] = new driverApi.makeBlindPanel( 6 + 2 * i, 2, 2, 3 );
     }
 
-    ui.knobgroupBlindPanel2 = new driverApi.makeBlindPanel( 6 + 16, 2, 2, 3 );
+    ui.centerScreen = new driverApi.makeBlindPanel( 6 + 16, 2, 2, 3 );
 
-    ui.transport    = makeTransport( 41, 9 );
+    makeTransport( ui, 41, 9 );
 
     ui.pianoKeys    = new driverApi.makePianoKeys( 5, 12, 48, 8, 0, NUM_PIANO_KEYS );
     ui.modWheel     = new driverApi.makeModWheel( 3, 13, 1, 6 );
@@ -264,12 +260,12 @@ function makeSurfaceMidiBindings( ui )
         ui.knobGroup[ i ].pad2.bindNote( INCONTROLMIDICHANNEL, define.ccId.id.PAD_9 + i )
     }
 
-    ui.transport.btnRewind.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.REWIND )
-    ui.transport.btnForward.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.FAST_FORWARD )
-    ui.transport.btnStop.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.STOP_BUTTON )
-    ui.transport.btnStart.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.PLAY_BUTTON )
-    ui.transport.btnCycle.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.LOOP_BUTTON )
-    ui.transport.btnRecord.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.RECORD_BUTTON )
+    ui.btnRewind.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.REWIND )
+    ui.btnForward.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.FAST_FORWARD )
+    ui.btnStop.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.STOP_BUTTON )
+    ui.btnStart.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.PLAY_BUTTON )
+    ui.btnCycle.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.LOOP_BUTTON )
+    ui.btnRecord.bindCC( INCONTROLMIDICHANNEL, define.ccId.id.RECORD_BUTTON )
 
 }
 
@@ -307,12 +303,12 @@ function bindPages( pageData, index, array )
     pageData.data.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
     pageData.data.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
     // Bind the transport controls for all pages.
-    pageData.data.bindValue( ui.transport.btnRewind, pageData.data.hostTransportInfo( ).mRewind );
-    pageData.data.bindValue( ui.transport.btnForward, pageData.data.hostTransportInfo( ).mForward );
-    pageData.data.bindValue( ui.transport.btnStop, pageData.data.hostTransportInfo( ).mStop );
-    pageData.data.bindValue( ui.transport.btnStart, pageData.data.hostTransportInfo( ).mStart );
-    pageData.data.bindValue( ui.transport.btnCycle, pageData.data.hostTransportInfo( ).mCycleActive );
-    pageData.data.bindValue( ui.transport.btnRecord, pageData.data.hostTransportInfo( ).mRecord );
+    pageData.data.bindValue( ui.btnRewind, pageData.data.hostTransportInfo( ).mRewind );
+    pageData.data.bindValue( ui.btnForward, pageData.data.hostTransportInfo( ).mForward );
+    pageData.data.bindValue( ui.btnStop, pageData.data.hostTransportInfo( ).mStop );
+    pageData.data.bindValue( ui.btnStart, pageData.data.hostTransportInfo( ).mStart );
+    pageData.data.bindValue( ui.btnCycle, pageData.data.hostTransportInfo( ).mCycleActive );
+    pageData.data.bindValue( ui.btnRecord, pageData.data.hostTransportInfo( ).mRecord );
 
     /* If a page has no subpage areas, the binding must be done on the page level.
      * If this is done for all pages, it will override the subpage mapping and things
