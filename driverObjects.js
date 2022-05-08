@@ -127,6 +127,10 @@ function DriverPage( deviceDriver, pageName )
     {
         this.api.makeValueBinding( control.api.mSurfaceValue, value ).setTypeToggle( );
     }
+    this.bindFaderValue = function( control, value )
+    {
+        this.api.makeValueBinding( control.api.mSurfaceValue, value ).setValueTakeOverModePickup( );
+    }
 }
 
 

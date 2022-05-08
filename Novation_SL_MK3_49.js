@@ -271,7 +271,62 @@ function makeSurfaceMidiBindings( ui )
 
 
 var ui = makeSurfaceElements( );
+
 makeSurfaceMidiBindings( ui );
+
+function makeCommonPageBindings( driverData, ui )
+{
+    driverData.forEach( bindPages );
+    function bindPages( pageData, index, array )
+    {
+        // Bind page navigation for all pages. Without this you can get stuck on a page.
+        pageData.data.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
+        pageData.data.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
+        // Bind the transport controls for all pages.
+        pageData.data.bindValue( ui.btnRewind, pageData.data.hostTransportInfo( ).mRewind );
+        pageData.data.bindValue( ui.btnForward, pageData.data.hostTransportInfo( ).mForward );
+        pageData.data.bindValue( ui.btnStop, pageData.data.hostTransportInfo( ).mStop );
+        pageData.data.bindValue( ui.btnStart, pageData.data.hostTransportInfo( ).mStart );
+        pageData.data.bindValue( ui.btnCycle, pageData.data.hostTransportInfo( ).mCycleActive );
+        pageData.data.bindValue( ui.btnRecord, pageData.data.hostTransportInfo( ).mRecord );
+
+        var hostMixerBankZone   = pageData.data.api.mHostAccess.mMixConsole.makeMixerBankZone( )
+            .excludeInputChannels( )
+            .excludeOutputChannels( );
+
+        for( var track = 0; track < ui.numStrips; ++track )
+        {
+            var channelBankItem     = hostMixerBankZone.makeMixerBankChannel(  );
+            var selectedButtonValue = ui.knobGroup[ track ].button.api.mSurfaceValue;
+
+            pageData.data.api.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected );
+            pageData.data.bindFaderValue( ui.faderGroup[ track ].fader, channelBankItem.mValue.mVolume );
+
+            pageData.data.bindValue( ui.faderGroup[ track ].btnTop, channelBankItem.mValue.mMute );
+            pageData.data.bindValue( ui.faderGroup[ track ].btnBottom, channelBankItem.mValue.mSolo );
+
+            ui.knobGroup[ track ].button.setTypePush( );
+        }
+
+
+        pageData.subPageArea.forEach( bindSubpageArea )
+        {
+            function bindSubpageArea( subPageAreaData, index, array )
+            {
+                // Subpage navigation is handled by the parent subpagearea.
+                pageData.data.bindAction( ui.btn_prevKnobSubPage, subPageAreaData.data.api.mAction.mPrev );
+                pageData.data.bindAction( ui.btn_nextKnobSubPage, subPageAreaData.data.api.mAction.mNext );
+
+                subPageAreaData.subPage.forEach( bindSubPage )
+                {
+                    function bindSubPage( subPageData, index, array )
+                    {
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 /**
@@ -296,49 +351,7 @@ var testPage    = new driverApi.makePage( slDriver, 'Test Page' );
  */
 var driverData = driverApi.getdriverData( );
 
-driverData.forEach( bindPages );
-function bindPages( pageData, index, array )
-{
-    // Bind page navigation for all pages. Without this you can get stuck on a page.
-    pageData.data.bindAction( ui.btn_prevDriverPage, slDriver.api.mAction.mPrevPage );
-    pageData.data.bindAction( ui.btn_nextDriverPage, slDriver.api.mAction.mNextPage );
-    // Bind the transport controls for all pages.
-    pageData.data.bindValue( ui.btnRewind, pageData.data.hostTransportInfo( ).mRewind );
-    pageData.data.bindValue( ui.btnForward, pageData.data.hostTransportInfo( ).mForward );
-    pageData.data.bindValue( ui.btnStop, pageData.data.hostTransportInfo( ).mStop );
-    pageData.data.bindValue( ui.btnStart, pageData.data.hostTransportInfo( ).mStart );
-    pageData.data.bindValue( ui.btnCycle, pageData.data.hostTransportInfo( ).mCycleActive );
-    pageData.data.bindValue( ui.btnRecord, pageData.data.hostTransportInfo( ).mRecord );
-
-    var hostMixerBankZone   = pageData.data.api.mHostAccess.mMixConsole.makeMixerBankZone( )
-        .excludeInputChannels( )
-        .excludeOutputChannels( );
-
-    for( var track = 0; track < ui.numStrips; ++track )
-    {
-        var channelBankItem     = hostMixerBankZone.makeMixerBankChannel(  );
-        var selectedButtonValue = ui.knobGroup[ track ].button.api.mSurfaceValue;
-
-        pageData.data.api.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected );
-        ui.knobGroup[ track ].button.setTypePush( );
-    }
-    pageData.subPageArea.forEach( bindSubpageArea )
-    {
-        function bindSubpageArea( subPageAreaData, index, array )
-        {
-            // Subpage navigation is handled by the parent subpagearea.
-            pageData.data.bindAction( ui.btn_prevKnobSubPage, subPageAreaData.data.api.mAction.mPrev );
-            pageData.data.bindAction( ui.btn_nextKnobSubPage, subPageAreaData.data.api.mAction.mNext );
-
-            subPageAreaData.subPage.forEach( bindSubPage )
-            {
-                function bindSubPage( subPageData, index, array )
-                {
-                }
-            }
-        }
-    }
-}
+makeCommonPageBindings( driverData, ui );
 
 
 MixerPage.api.mOnActivate = function( context )
@@ -373,9 +386,6 @@ testPage.api.mOnActivate = function( context )
 }
 
 //page.makeValueBinding( knobValue, channelBankItem.mValue.mPan ).setSubPage( subPagePan )
-//page.makeValueBinding( muteValue, channelBankItem.mValue.mMute ).setTypeToggle( )
-//page.makeValueBinding( soloValue, channelBankItem.mValue.mSolo ).setTypeToggle( )
-//page.makeValueBinding( faderValue, channelBankItem.mValue.mVolume ).setValueTakeOverModePickup( )
 //page.makeValueBinding( knobValue, sendLevel ).setSubPage( subPage )
 //page.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected )
 //page.makeValueBinding( surfaceElements.knobStrips[ idx ].knob.mSurfaceValue, selectedTrackChannel.mQuickControls.getByIndex( idx ) )
