@@ -310,59 +310,30 @@ function bindPages( pageData, index, array )
     pageData.data.bindValue( ui.btnCycle, pageData.data.hostTransportInfo( ).mCycleActive );
     pageData.data.bindValue( ui.btnRecord, pageData.data.hostTransportInfo( ).mRecord );
 
-    /* If a page has no subpage areas, the binding must be done on the page level.
-     * If this is done for all pages, it will override the subpage mapping and things
-     * will not work as expected.
-     */
-    if( pageData.subPageArea.length == 0 )
-    {
-        /* The following call needs to be completed prior to binding to
-         * Host access. You will see this again below in the subpage
-         * mapping section.
-         */
-        var hostMixerBankZone   = pageData.data.api.mHostAccess.mMixConsole.makeMixerBankZone( )
+    var hostMixerBankZone   = pageData.data.api.mHostAccess.mMixConsole.makeMixerBankZone( )
         .excludeInputChannels( )
-        .excludeOutputChannels( )
+        .excludeOutputChannels( );
 
-        for( var i = 0; i < ui.numStrips; ++i )
-        {
-            var channelBankItem     = hostMixerBankZone.makeMixerBankChannel(  );
-            var selectedButtonValue = ui.knobGroup[ i ].button.api.mSurfaceValue;
-
-            pageData.data.api.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected );
-            ui.knobGroup[ i ].button.setTypePush( );
-        }
-    }
-    else
+    for( var track = 0; track < ui.numStrips; ++track )
     {
-        pageData.subPageArea.forEach( bindSubpageArea )
+        var channelBankItem     = hostMixerBankZone.makeMixerBankChannel(  );
+        var selectedButtonValue = ui.knobGroup[ track ].button.api.mSurfaceValue;
+
+        pageData.data.api.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected );
+        ui.knobGroup[ track ].button.setTypePush( );
+    }
+    pageData.subPageArea.forEach( bindSubpageArea )
+    {
+        function bindSubpageArea( subPageAreaData, index, array )
         {
-            function bindSubpageArea( subPageAreaData, index, array )
+            // Subpage navigation is handled by the parent subpagearea.
+            pageData.data.bindAction( ui.btn_prevKnobSubPage, subPageAreaData.data.api.mAction.mPrev );
+            pageData.data.bindAction( ui.btn_nextKnobSubPage, subPageAreaData.data.api.mAction.mNext );
+
+            subPageAreaData.subPage.forEach( bindSubPage )
             {
-                // Subpage navigation is handled by the parent subpagearea.
-                pageData.data.bindAction( ui.btn_prevKnobSubPage, subPageAreaData.data.api.mAction.mPrev );
-                pageData.data.bindAction( ui.btn_nextKnobSubPage, subPageAreaData.data.api.mAction.mNext );
-
-                subPageAreaData.subPage.forEach( bindSubPage )
+                function bindSubPage( subPageData, index, array )
                 {
-                    function bindSubPage( subPageData, index, array )
-                    {
-                        /* The following call needs to be completed prior to binding to
-                         * Host access. As mentioned above this should be completed just
-                         * prior to mapping. Be mindful of this adding functionality to
-                         * pages later.
-                         */
-                        var hostMixerBankZone   = pageData.data.api.mHostAccess.mMixConsole.makeMixerBankZone( )
-                            .excludeInputChannels( )
-                            .excludeOutputChannels( )
-
-                        for( var i = 0; i < ui.numStrips; ++i )
-                        {
-                            var channelBankItem     = hostMixerBankZone.makeMixerBankChannel(  );
-
-                            pageData.data.api.makeValueBinding( ui.knobGroup[ i ].button.api.mSurfaceValue, channelBankItem.mValue.mSelected ).setSubPage( subPageData.data.api );
-                        }
-                    }
                 }
             }
         }

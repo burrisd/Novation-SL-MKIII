@@ -127,12 +127,6 @@ function DriverPage( deviceDriver, pageName )
     {
         this.api.makeValueBinding( control.api.mSurfaceValue, value ).setTypeToggle( );
     }
-
-    this.api.mOnActivate = function( context )
-    {
-        console.log( 'Page ' + pageName )
-    }
-
 }
 
 
