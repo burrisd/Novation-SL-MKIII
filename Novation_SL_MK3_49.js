@@ -158,9 +158,9 @@ function makeKnobStrip( knobIndex, x, y ) {
      * Create the controls.
      */
     knobStrip.knob      = new driverApi.makeKnob( x + 2 * knobIndex, y, 2, 2 )
-    knobStrip.button    = new driverApi.makeButton( x + 2 * knobIndex, y + 4, 2, 1 )
-    knobStrip.pad1      = new driverApi.makeTriggerPad( x + 2 * knobIndex, y + 5, 2, 2 )
-    knobStrip.pad2      = new driverApi.makeTriggerPad( x + 2 * knobIndex, y + 7, 2, 2 )
+    knobStrip.button    = new driverApi.makeButton( x + 2 * knobIndex, y + 6, 2, 1 )
+    knobStrip.pad1      = new driverApi.makeTriggerPad( x + 2 * knobIndex, y + 7, 2, 2 )
+    knobStrip.pad2      = new driverApi.makeTriggerPad( x + 2 * knobIndex, y + 9, 2, 2 )
 
     return knobStrip
 }
@@ -180,49 +180,48 @@ function makeSurfaceElements( )
 
     ui.numStrips = 8;
 
-    ui.btn_prevDriverPage = new driverApi.makeButton( 4, 5, 2, 2 );
-    ui.btn_nextDriverPage = new driverApi.makeButton( 4, 7, 2, 2 );
+    ui.btn_prevDriverPage = new driverApi.makeButton( 4, 7, 2, 2 );
+    ui.btn_nextDriverPage = new driverApi.makeButton( 4, 9, 2, 2 );
 
     ui.btn_nextDriverPage.setShapeCircle( );
     ui.btn_prevDriverPage.setShapeCircle( );
 
     ui.btn_options      = new driverApi.makeButton( 22, 4, 2, 1 );
     ui.btn_grid         = new driverApi.makeButton( 4, 4, 2, 1 );
-    ui.btn_clear        = new driverApi.makeButton( 0, 6, 2, 1 );
-    ui.btn_duplicate    = new driverApi.makeButton( 0, 5, 2, 1  );
-    ui.btn_padLeft      = new driverApi.makeButton( 22, 5, 2, 2 );
-    ui.btn_padRight     = new driverApi.makeButton( 22, 7, 2, 2 );
+    ui.btn_clear        = new driverApi.makeButton( 0, 9, 2, 1 );
+    ui.btn_duplicate    = new driverApi.makeButton( 0, 8, 2, 1  );
+    ui.btn_padLeft      = new driverApi.makeButton( 22, 7, 2, 2 );
+    ui.btn_padRight     = new driverApi.makeButton( 22, 9, 2, 2 );
 
     ui.btn_padLeft.setShapeCircle( );
     ui.btn_padRight.setShapeCircle( );
 
     // Create left.right arrow buttons.
-    ui.btn_prevTrack = new driverApi.makeButton( 0, 7, 2, 1 );
-    ui.btn_nextTrack = new driverApi.makeButton( 2, 7, 2, 1 );
+    ui.btn_prevTrack = new driverApi.makeButton( 0, 10, 2, 1 );
+    ui.btn_nextTrack = new driverApi.makeButton( 2, 10, 2, 1 );
 
     ui.btn_prevKnobSubPage = new driverApi.makeButton( 4, 2, 2, 1 );
     ui.btn_nextKnobSubPage = new driverApi.makeButton( 4, 3, 2, 1 );
 
-    ui.btn_prevFaderSubPage = new driverApi.makeButton( 40, 0, 2, 1 );
-    ui.btn_nextFaderSubPage = new driverApi.makeButton( 40, 1, 2, 1 );
+    ui.btn_prevFaderSubPage = new driverApi.makeButton( 40, 2, 2, 1 );
+    ui.btn_nextFaderSubPage = new driverApi.makeButton( 40, 3, 2, 1 );
 
     ui.deviceLabel = new driverApi.makeLabel( 45, 0, 7, 2 );
 
     for (var i = 0; i < ui.numStrips; ++i)
     {
-        ui.faderGroup[ i ] = makeFaderStrip( i, 24, 0 );
+        ui.faderGroup[ i ] = makeFaderStrip( i, 24, 2 );
         ui.knobGroup[ i ] = makeKnobStrip( i, 6, 0 );
     }
 
-    ui.pianoKeys    = new driverApi.makePianoKeys( 5, 10, 48, 7, 0, NUM_PIANO_KEYS );
+    ui.knobgroupBlindPanel  = new driverApi.makeBlindPanel( 6, 2, ui.numStrips * 2, 3 );
+    ui.knobgroupBlindPanel2 = new driverApi.makeBlindPanel( 6 + 16, 0 + 2, 2, 3 );
 
-    ui.knobgroupBlindPanel  = new driverApi.makeBlindPanel( 6, 0 + 2, ui.numStrips * 2, 2 );
-    ui.knobgroupBlindPanel2 = new driverApi.makeBlindPanel( 6 + 16, 0 + 2, 2, 2 );
+    ui.transport    = makeTransport( 41, 9 );
 
-    ui.transport    = makeTransport( 41, 7 );
-
-    ui.modWheel     = new driverApi.makeModWheel( 3, 11, 1, 6 );
-    ui.pitchwheel   = new driverApi.makePitchWheel( 1, 11, 1, 6 );
+    ui.pianoKeys    = new driverApi.makePianoKeys( 5, 12, 48, 8, 0, NUM_PIANO_KEYS );
+    ui.modWheel     = new driverApi.makeModWheel( 3, 13, 1, 6 );
+    ui.pitchwheel   = new driverApi.makePitchWheel( 1, 13, 1, 6 );
 
     return ui
 }
@@ -334,6 +333,7 @@ function bindPages( pageData, index, array )
             var selectedButtonValue = ui.knobGroup[ i ].button.api.mSurfaceValue;
 
             pageData.data.api.makeValueBinding( selectedButtonValue, channelBankItem.mValue.mSelected );
+            ui.knobGroup[ i ].button.setTypePush( );
         }
     }
     else
