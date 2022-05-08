@@ -150,10 +150,10 @@ const lcd =
         },
         text:
         {
-            LEFT_1:     0,              /*!< Left text line 1. */
-            LEFT_2:     1,              /*!< Left text line 2. */
-            RIGHT_1:    2,              /*!< Right text line 1. */
-            RIGHT_2:    3               /*!< Right text line 2. */
+            LEFT_1:     0,
+            LEFT_2:     1,
+            RIGHT_1:    2,
+            RIGHT_2:    3
         }
     }
 }
