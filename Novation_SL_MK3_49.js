@@ -25,8 +25,8 @@
  *  to update the displays and LEDs based on values passed in to
  *  the functions.
  */
-var helper          = require( './helper' );
 var define          = require( './constants' )
+var helper          = require( './helper' )
 
 /*
  *  NOTE:   When controlling LEDs, it is important to understand
@@ -50,7 +50,11 @@ var define          = require( './constants' )
 //const SCREEN_PROPERTY_RGB           = 4     /*!< Change color property using 3-byte RGB value. */
 //
 
-const NUM_PIANO_KEYS                = 60;   /*!< Zero-based number of keys to display. */
+// Constants for the number of piano keys.
+const NUM_KEYS_61                   = 60
+const NUM_KEYS_49                   = 48
+
+const NUM_PIANO_KEYS                = NUM_KEYS_61   /*!< Zero-based number of keys to display. */
 
 const INCONTROLMIDICHANNEL          = 15    /*!< MIDI channel used by InControl mode. */
 
@@ -62,7 +66,14 @@ const CENTER_LCD_OFFSET             = 8     /*!< Center screen index. */
 var midiremote_api = require( 'midiremote_api_v1' )
 
 // Create the device driver object.
-var deviceDriver   = midiremote_api.makeDeviceDriver( 'Novation', 'SL MK3 49', 'David Burris - Burris Audio' )
+if ( NUM_PIANO_KEYS == NUM_KEYS_49 )
+{
+    var deviceDriver   = midiremote_api.makeDeviceDriver( 'Novation', 'SL MK3 49', 'David Burris - Burris Audio' )
+}
+else
+{
+    var deviceDriver   = midiremote_api.makeDeviceDriver( 'Novation', 'SL MK3 61', 'David Burris - Burris Audio' )
+}
 
 // Create connections to the MIDI input and output.
 var midiInput      = deviceDriver.mPorts.makeMidiInput( )
@@ -402,7 +413,7 @@ function makeKnobStrip( knobIndex, x, y )
         lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.text.TEXT_2, valueTitle )
         lcdApi.displayText( context, SMALL_LCD_OFFSET + knobIndex, define.lcdId.knob.text.TEXT_1, objectTitle )
 
-        var msg = lcdApi.notification( context, 'Version', 'v0.0.5' )
+        var msg = lcdApi.notification( context, 'Version', 'v0.0.6' )
     }
     /**
      * Callback for when button value changes.
@@ -643,7 +654,14 @@ function makePageWithDefaults( name )
     var numParts        = 8;
 
     // Create device label.
-    page.setLabelFieldText( surfaceElements.deviceLabel, "61SL MKIII" )
+    if ( NUM_PIANO_KEYS == NUM_KEYS_61 )
+    {
+        page.setLabelFieldText(surfaceElements.deviceLabel, "61SL MKIII")
+    }
+    else
+    {
+        page.setLabelFieldText(surfaceElements.deviceLabel, "49SL MKIII")
+    }
 
     /* Bind the buttons for SL Part selection. Each part selection
      * selects the associated Cubase track for the part.
@@ -871,10 +889,10 @@ function makePageParts( )
     // Create the subppages for each of the eight parts.
     for( var subPageIdx = 0; subPageIdx < numParts; ++subPageIdx )
     {
-        var nameSubPage = 'Knob ' + (subPageIdx + 1).toString( )
+        var nameSubPage = 'Knob Page ' + (subPageIdx + 1).toString( )
         var subPagePart = makeSubPage( knobSubPageArea, nameSubPage )
 
-        nameSubPage = 'Fader ' + (subPageIdx + 1).toString( )
+        nameSubPage = 'Fader Page' + (subPageIdx + 1).toString( )
         subPagePart = makeSubPage( faderSubpageArea, nameSubPage )
     }
 
